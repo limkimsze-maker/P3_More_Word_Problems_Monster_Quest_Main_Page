@@ -1,874 +1,1460 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Monster Quest — 8-Stage Pet Journey</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Two-Part Word Problem — Step by Step</title>
+
   <link rel="icon" href="./kimsze_sharp16.ico?v=20260111a" sizes="any">
   <link rel="shortcut icon" href="./kimsze_sharp16.ico?v=20260111a">
+
+  <script>
+  (function(){
+    const ACTIVITY_ID = 'https://limkimsze-maker.github.io/Two_Part_Word_Problem_Variation_Right_Workspace/';
+    try{
+      const gone=[];
+      for(let i=0;i<localStorage.length;i++){
+        const k=localStorage.key(i);
+        if(!k) continue;
+        if(k===ACTIVITY_ID || k.startsWith(ACTIVITY_ID+'::') || k.startsWith('sls_scope::'+ACTIVITY_ID) || k.startsWith('UFCO-firstSubmit::'+ACTIVITY_ID) || k.startsWith('sls_unlike_payload::'+ACTIVITY_ID)) gone.push(k);
+      }
+      gone.forEach(k=>localStorage.removeItem(k));
+      sessionStorage.removeItem('UFCO-firstSubmit::'+ACTIVITY_ID);
+      sessionStorage.removeItem('UFCO-lastTs::'+ACTIVITY_ID);
+      try{
+        const bc=new BroadcastChannel('xapi-state');
+        bc.postMessage({type:'clear',activityId:ACTIVITY_ID,ts:Date.now()});
+        bc.close();
+      }catch(e){}
+    }catch(e){}
+    window.__ACTIVITY_ID__ = ACTIVITY_ID;
+  })();
+  </script>
+
   <script async src="https://cdn.counter.dev/script.js" data-id="825e93b6-ce99-40ef-8bcc-125f13297433" data-utcoffset="8"></script>
+
   <style>
     :root{
-      --bg:#f5f8ff;
-      --card:#ffffff;
-      --ink:#2e3659;
-      --soft:#68739d;
-      --line:#d8def2;
-      --line-2:#cfd8f7;
-      --hero:#f7fbff;
-      --pill:#fff2bf;
-      --green:#9fd56b;
-      --green-dark:#49761f;
-      --blue:#6fa8ff;
-      --blue-soft:#e8f2ff;
-      --pink:#ff7d9a;
-      --pink-soft:#ffe8ee;
-      --gold:#f5c443;
-      --gold-soft:#fff5cf;
-      --shadow:0 10px 28px rgba(62,77,125,.10);
-      --radius:18px;
-      --font: "Comic Sans MS","Comic Neue","Trebuchet MS",system-ui,sans-serif;
+      --bg:#eef2f8;
+      --panel:#dbe2f0;
+      --ink:#101828;
+      --muted:#5a6780;
+      --blue:#f4db6d;
+      --pink:#cfe9bf;
+      --line:#111827;
+      --shadow:0 12px 28px rgba(15,23,42,.10);
+      --radius:22px;
+      --workspace:#ffffff;
+      --okay:#166534;
+      --softOkay:#ecfdf3;
+      --bad:#be123c;
+      --softBad:#fff1f2;
+      --accent:#2563eb;
+      --step:#fef3c7;
+      --stepOn:#dcfce7;
+      --stepNow:#dbeafe;
+      --coach:#fff7d6;
+      --coachLine:rgba(245,158,11,.28);
+      --box:#fff4b8;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
-      font-family:var(--font);
+      font-family:"Comic Sans MS","Comic Neue","Trebuchet MS",system-ui,sans-serif;
       color:var(--ink);
-      background:linear-gradient(180deg,#f7f9ff 0%, #eef3ff 100%);
-      overflow-y:auto;
-      overflow-x:hidden;
-    }
-    .page{
-      width:min(1380px, calc(100vw - 16px));
-      margin:10px auto 20px;
-      display:grid;
-      gap:10px;
-    }
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:14px;
-      box-shadow:var(--shadow);
-    }
-    .hero{
-      display:grid;
-      grid-template-columns:420px 1fr;
-      gap:18px;
-      padding:14px;
-      align-items:start;
-    }
-    .pet-card{
-      padding:10px;
-      border:1px solid var(--line-2);
-      border-radius:18px;
-      background:linear-gradient(180deg,#fbfdff 0%, #f4f7ff 100%);
-    }
-    .mini-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      background:var(--gold-soft);
-      color:#7a5c00;
-      border:1px solid #ead27e;
-      border-radius:999px;
-      padding:6px 12px;
-      font-weight:700;
-      font-size:14px;
-    }
-    .pet-preview{
-      margin-top:10px;
-      min-height:260px;
-      border:1px dashed #d6d1fb;
-      border-radius:14px;
-      background:linear-gradient(180deg,#f7f4ff 0%, #eef4ff 100%);
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      background:linear-gradient(180deg,#f8fbff,#edf2f8);
       overflow:hidden;
-      padding:8px;
-      position:relative;
     }
-    .pet-preview img{
-      max-width:100%;
-      max-height:240px;
-      object-fit:contain;
-      filter:drop-shadow(0 10px 18px rgba(0,0,0,.12));
+    .app{
+      width:100vw;height:100vh;display:grid;grid-template-rows:auto 1fr auto;
+      background:rgba(255,255,255,.6);
     }
-    .pet-preview.hidden img{
-      display:none;
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:10px 14px;border-bottom:1px solid rgba(15,23,42,.08);
+      background:rgba(255,255,255,.82);
+      box-shadow:0 4px 20px rgba(15,23,42,.04);
     }
-    .hidden-reward-note{
-      display:none;
-      width:100%;
-      height:100%;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:18px;
-      color:var(--soft);
-      font-size:16px;
-      font-weight:700;
-      line-height:1.4;
-    }
-    .pet-preview.hidden .hidden-reward-note{
-      display:flex;
-    }
-    .stage-preview.hidden .hidden-reward-note{
-      display:flex;
-      font-size:14px;
-      padding:10px;
-    }
-    .pet-title{
-      margin:10px 0 2px;
-      font-size:22px;
-      font-weight:700;
-    }
-    .pet-sub{
-      margin:0;
-      color:var(--soft);
-      line-height:1.35;
-      font-size:15px;
-    }
-
-    .hero-main h1{
-      margin:0 0 6px;
-      font-size:28px;
-      line-height:1.05;
-    }
-    .hero-main p{
-      margin:0;
-      font-size:15px;
-      color:var(--soft);
-      line-height:1.45;
-    }
-    .notice{
-      margin-top:12px;
-      background:#f7f9ff;
-      border:1px solid var(--line);
-      border-radius:10px;
-      padding:10px 12px;
-      font-size:14px;
-      line-height:1.35;
-      color:#556187;
-    }
-    .actions{
-      margin-top:12px;
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-    }
+    .title{display:flex;flex-direction:column;gap:3px;min-width:0}
+    .title h1{margin:0;font-size:20px;line-height:1.1}
+    .title .sub{font-size:12px;color:var(--muted);font-weight:700}
+    .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
     .btn{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      border-radius:12px;
-      padding:11px 16px;
-      font:700 15px var(--font);
-      box-shadow:0 4px 0 rgba(0,0,0,.08);
+      border:1px solid rgba(15,23,42,.14);background:#fff;border-radius:16px;padding:11px 16px;
+      font:900 13px/1 "Comic Sans MS","Comic Neue",sans-serif;cursor:pointer;box-shadow:0 8px 18px rgba(15,23,42,.08);
+      white-space:nowrap;
     }
-    .btn.primary{background:#f4bf34;color:#5f4600}
-    .btn.blue{background:#6ea4ff;color:#fff}
-    .btn.pink{background:#f57590;color:#fff}
-    .btn.green{background:#9fd56b;color:#23460c}
-    .btn.slate{background:#e9eefc;color:#44517a}
-    .btn[disabled]{opacity:.5;cursor:not-allowed}
+    .btn.soft{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}
+    .btn.success{background:#ecfdf3;border-color:#86efac;color:#166534}
+    .btn.primary{background:#111827;color:#fff;border-color:#111827}
+    .btn:disabled{opacity:.48;cursor:not-allowed;transform:none}
     .btn:active{transform:translateY(1px)}
 
-    .progress-card{
-      padding:12px 14px;
+    .main{
+      min-height:0;padding:12px;display:grid;grid-template-columns:minmax(0,1.75fr) minmax(320px,.92fr);gap:14px;
     }
-    .progress-top{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:center;
-      flex-wrap:wrap;
-      margin-bottom:8px;
+    .card{
+      min-height:0;display:flex;flex-direction:column;overflow:hidden;border-radius:24px;
+      background:#fff;border:1px solid rgba(15,23,42,.08);box-shadow:var(--shadow);
     }
-    .progress-title{
-      font-size:18px;
-      font-weight:700;
+    .cardHd{
+      padding:12px 16px;border-bottom:1px solid rgba(15,23,42,.08);display:flex;align-items:center;justify-content:space-between;gap:10px;
+      background:rgba(255,255,255,.82);
     }
-    .progress-meta{
-      font-size:14px;
-      color:var(--soft);
-      font-weight:700;
+    .cardHd .h{font-size:15px;font-weight:1000}
+
+    .questionArea{
+      flex:1;min-height:0;padding:14px;background:var(--panel);
+      display:grid;grid-template-columns:minmax(280px,.86fr) minmax(0,1.14fr);gap:14px;
     }
-    .progress-bar{
-      height:10px;
-      background:#e6ecff;
-      border-radius:999px;
-      overflow:hidden;
-      border:1px solid #d6defb;
+    .storyCol,.stageCol{
+      min-height:0;border-radius:24px;background:rgba(255,255,255,.18);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+      display:flex;flex-direction:column;padding:14px;
     }
-    .progress-fill{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,#7eb1ff 0%, #98d56a 100%);
-      border-radius:999px;
+    .storyTitle{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+      margin-bottom:10px;padding:12px 14px;border-radius:20px;
+      background:linear-gradient(180deg,#f9fbff,#e8f0fb);box-shadow:0 8px 20px rgba(15,23,42,.08);
     }
-    .progress-dots{
-      display:flex;
-      gap:8px;
-      margin-top:10px;
-      flex-wrap:wrap;
+    .storyTitle h2{margin:0;font-size:24px;line-height:1.05;color:#2b6fb5}
+    .storyTitle .sub{margin-top:4px;font-size:12px;font-weight:900;color:#64748b}
+    .questionTag{
+      padding:7px 12px;border-radius:999px;background:#eaf4ff;border:1px solid rgba(43,111,181,.18);
+      font-size:12px;font-weight:1000;color:#2b6fb5;white-space:nowrap;
     }
-    .dot{
-      width:26px;height:26px;border-radius:50%;
-      display:flex;align-items:center;justify-content:center;
-      border:1px solid #c7d2fb;
-      background:#eef2ff;
-      font-size:13px;
-      color:#6d78a5;
-      font-weight:700;
+    .progressStrip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 10px}
+    .stepPill{
+      border-radius:16px;padding:8px 8px 10px;text-align:center;font-weight:1000;font-size:14px;
+      background:var(--step);border:1px solid rgba(15,23,42,.08);line-height:1.05;
     }
-    .dot.done{
-      background:#fff3bf;
-      border-color:#e3c85f;
-      color:#7b5f04;
+    .journeyBox{
+      margin:0 0 10px;padding:12px 14px;border-radius:18px;background:#f8fafc;border:1px solid #cbd5e1;
+      box-shadow:0 8px 18px rgba(15,23,42,.05);
     }
-    .dot.on{
-      background:#deebff;
-      border-color:#6fa8ff;
-      color:#356ac4;
+    .journeyTop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .journeyTitle{font-size:20px;font-weight:1000;color:#1e3a8a}
+    .journeyMeta{font-size:14px;font-weight:1000;color:#475569}
+    .journeyBar{
+      margin-top:9px;height:16px;border-radius:999px;background:#e2e8f0;overflow:hidden;
+      box-shadow:inset 0 1px 2px rgba(15,23,42,.08);
+    }
+    .journeyFill{
+      height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#60a5fa,#34d399);
+      transition:width .28s ease;
+    }
+    .streakRow{
+      margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    }
+    .streakLabel{font-size:14px;font-weight:1000;color:#92400e}
+    .streakDots{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .streakDot{
+      width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      background:#e2e8f0;border:2px solid #cbd5e1;font-size:18px;transition:transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .streakDot.on{background:#fef3c7;border-color:#f59e0b;transform:translateY(-2px)}
+    .streakText{font-size:13px;font-weight:1000;color:#475569}
+    .stepPill small{display:block;font-size:11px;color:#475569;margin-top:3px}
+    .stepPill.current{background:var(--stepNow);border-color:#93c5fd;color:#1d4ed8}
+    .stepPill.done{background:var(--stepOn);border-color:#86efac;color:#166534}
+    .coachBox{
+      border-radius:18px;background:var(--coach);border:2px solid var(--coachLine);
+      padding:12px 14px;font-weight:1000;font-size:18px;line-height:1.18;
+      box-shadow:0 8px 18px rgba(15,23,42,.06);
+    }
+    .coachBox small{display:block;font-size:13px;color:#7c5c09;margin-top:5px}
+    .problemText{
+      margin-top:12px;padding:14px 14px 12px;border-radius:20px;background:rgba(255,255,255,.46);
+      font-size:21px;line-height:1.34;font-weight:900;
+    }
+    .problemText .line{display:block;margin-bottom:5px}
+    .problemText .partLine{display:flex;gap:10px;margin-top:10px;align-items:flex-start}
+    .partTag{min-width:38px}
+    .sideNote{
+      margin-top:auto;padding:12px 14px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;
+      font-size:15px;font-weight:1000;color:#1d4ed8;
     }
 
-    .map-card{
-      padding:14px;
+    .stageCol{padding:16px}
+    .stageStack{position:relative;flex:1;min-height:0}
+    .stagePanel{
+      position:absolute;inset:0;display:none;flex-direction:column;gap:12px;
+      border-radius:24px;background:rgba(255,255,255,.34);padding:14px;
+      box-shadow:inset 0 0 0 2px rgba(255,255,255,.12);
     }
-    .section-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:12px;
+    .stagePanel.active{display:flex}
+    .stageHead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .stageHead h3{margin:0;font-size:26px}
+    .stageBadge{
+      border-radius:999px;padding:7px 12px;font-size:13px;font-weight:1000;
+      background:#dbeafe;border:1px solid #93c5fd;color:#1d4ed8;
     }
-    .section-title{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      background:#f5f7ff;
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding:8px 14px;
-      font-size:17px;
-      font-weight:700;
+    .stageBadge.done{background:#dcfce7;border-color:#86efac;color:#166534}
+    .stagePrompt{
+      display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:16px;
+      background:#fff7d6;border:1px solid rgba(245,158,11,.28);font-size:18px;font-weight:1000;
     }
-    .section-note{
-      font-size:14px;
-      color:var(--soft);
-      font-weight:700;
+    .modelWrap{
+      flex:1;min-height:0;border-radius:20px;background:rgba(255,255,255,.46);padding:34px 16px 16px;
+      display:flex;align-items:center;justify-content:center;overflow:visible;
     }
-    .stage-grid{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:12px;
+    .modelLabelCard{
+      width:min(100%,560px);align-self:flex-start;background:#eef6ff;border:1px solid rgba(59,130,246,.22);
+      border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;
     }
-    .stage-card{
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:linear-gradient(180deg,#fbfdff 0%, #f6f8ff 100%);
-      padding:12px;
-      display:grid;
-      gap:10px;
-      min-height:196px;
-      position:relative;
-      transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    .modelLabelHead{font-size:17px;font-weight:1000;color:#1d4ed8}
+    .modelLabelHint{font-size:14px;font-weight:900;color:#475569}
+    .modelLabelGrid{display:flex;flex-wrap:wrap;gap:10px 12px}
+    .dropField{display:flex;flex-direction:column;gap:6px;min-width:156px;flex:1}
+    .dropField span{font-size:13px;font-weight:1000;color:#334155}
+    .dropZone{
+      min-height:54px;border-radius:14px;border:2px dashed rgba(15,23,42,.18);background:#fff;
+      padding:6px;display:flex;align-items:center;justify-content:center;
+      transition:border-color .18s ease, background .18s ease, box-shadow .18s ease;
     }
-    .stage-card.unlocked{
-      border-color:#80b4ff;
-      box-shadow:0 0 0 2px rgba(111,168,255,.18) inset;
+    .dropZone.locked{border-style:solid;background:#f8fafc}
+    .dropZone.over,.dragBank.over{background:#eff6ff;border-color:#60a5fa}
+    .dropZone.ok{box-shadow:0 0 0 3px rgba(22,163,74,.25) inset;border-color:#16a34a}
+    .dropZone.bad{box-shadow:0 0 0 3px rgba(225,29,72,.22) inset;border-color:#e11d48}
+    .dropPlaceholder{font-size:14px;font-weight:900;color:#94a3b8;pointer-events:none}
+    .dragBankWrap{display:none;flex-direction:column;gap:8px;margin-top:4px}
+    .dragBankWrap.show{display:flex}
+    .dragBankTitle{font-size:13px;font-weight:1000;color:#334155}
+    .dragBank{
+      min-height:58px;border-radius:14px;border:2px dashed #bfdbfe;background:#f8fbff;
+      padding:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;
+      transition:border-color .18s ease, background .18s ease;
     }
-    .stage-card.completed{
-      border-color:#e2c55c;
-      box-shadow:0 0 0 2px rgba(242,198,67,.15) inset;
+    .dragChip{
+      min-height:38px;padding:8px 12px;border-radius:999px;background:#ffffff;border:2px solid #93c5fd;
+      box-shadow:0 4px 12px rgba(15,23,42,.08);font-size:15px;font-weight:1000;color:#1d4ed8;
+      display:inline-flex;align-items:center;justify-content:center;cursor:grab;user-select:none;
     }
-    .stage-card.just-unlocked{
-      animation:pulse 1.1s ease-in-out infinite alternate;
+    .dragChip.dragging{opacity:.45}
+    
+    .dragChip.lockedChip{cursor:default;background:#e2e8f0;border-color:#cbd5e1;color:#0f172a}
+    .modelWrapInner{
+      width:min(100%,560px);display:flex;align-items:center;justify-content:center;
+      transform-origin:center center; will-change:transform; overflow:visible;
     }
-    @keyframes pulse{
-      from{transform:translateY(0); box-shadow:0 0 0 2px rgba(111,168,255,.14) inset;}
-      to{transform:translateY(-2px); box-shadow:0 0 0 3px rgba(111,168,255,.28) inset, 0 10px 24px rgba(111,168,255,.12);}
+    .modelDrop{
+      min-height:40px;min-width:82px;border-radius:14px;border:2px dashed rgba(15,23,42,.18);background:#fff;
+      padding:4px;display:flex;align-items:center;justify-content:center;transition:border-color .18s ease, background .18s ease, box-shadow .18s ease;
     }
-    .stage-top{
-      display:flex;
-      justify-content:space-between;
-      gap:8px;
-      align-items:flex-start;
-    }
-    .stage-name{
-      font-size:16px;
-      font-weight:700;
-    }
-    .stage-chip{
-      border-radius:999px;
-      padding:3px 8px;
-      font-size:11px;
-      font-weight:700;
-      white-space:nowrap;
-      border:1px solid #d8def2;
-      background:#eef2ff;
-      color:#7b86b0;
-    }
-    .stage-card.unlocked .stage-chip{background:#e8f2ff;color:#356ac4;border-color:#9fc2ff}
-    .stage-card.completed .stage-chip{background:#fff3c9;color:#8a6900;border-color:#ead27e}
-    .stage-preview{
-      height:128px;
-      border:1px dashed #d5d9ef;
-      border-radius:12px;
-      background:linear-gradient(180deg,#f6f3ff 0%, #eef4ff 100%);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-      padding:4px;
-      position:relative;
-    }
-    .stage-preview img{
-      max-width:100%;
-      max-height:118px;
-      object-fit:contain;
-      filter:drop-shadow(0 8px 14px rgba(0,0,0,.10));
-    }
-    .stage-preview.hidden img{
-      display:none;
-    }
-    .stage-preview .emoji{
-      font-size:34px;
-      line-height:1;
-    }
-    .stage-text{
-      font-size:12px;
-      color:var(--soft);
-      line-height:1.35;
-      min-height:34px;
-    }
-    .stage-btn{
-      justify-self:start;
-      padding:9px 14px;
-      border-radius:10px;
-      border:none;
-      font:700 14px var(--font);
-      cursor:pointer;
-      box-shadow:0 4px 0 rgba(0,0,0,.07);
-      background:#f3f5fb;
-      color:#7f89aa;
-    }
-    .stage-card.unlocked .stage-btn,
-    .stage-card.completed .stage-btn{
-      background:#f4bf34;
-      color:#5f4600;
-    }
-    .stage-btn[disabled]{opacity:.55;cursor:not-allowed}
+    .modelDrop.locked{border-style:solid;background:#f8fafc}
+    .modelDrop.topSlot,.modelDrop.bottomSlot{position:absolute;transform:translateX(-50%);z-index:2}
+    .modelDrop.topSlot{top:-29px}
+    .modelDrop.bottomSlot{top:12px}
+    .barSlot{width:min(92%,170px);min-height:40px;margin:0 auto}
+    .nameSlot{width:100%;min-height:40px}
+    .topSlot,.bottomSlot{min-width:76px}
+    .modelDrop .dropPlaceholder{font-size:12px}
 
-    .practice-card{
-      padding:14px;
+
+    .entryArea{display:flex;flex-direction:column;gap:10px}
+    .eqBox{
+      background:#b9e2df;border-radius:16px;padding:12px 14px;display:inline-flex;align-items:center;gap:10px;
+      font-size:28px;font-weight:1000;align-self:flex-start;max-width:100%;
     }
-    .practice-grid{
-      display:grid;
-      grid-template-columns:repeat(8,minmax(0,1fr));
-      gap:8px;
+    .actionMain{
+      align-self:flex-start;
+      padding:14px 22px;
+      font-size:20px;
+      border-radius:18px;
+      margin-top:2px;
     }
-    .practice-btn{
-      border:none;
-      border-radius:10px;
-      padding:10px 8px;
-      background:#eef4ff;
-      color:#3c5ea8;
-      font:700 13px var(--font);
-      cursor:pointer;
-      box-shadow:0 4px 0 rgba(0,0,0,.07);
+    .ansBlank{
+      display:inline-flex;align-items:center;justify-content:center;width:132px;min-width:132px;height:48px;border-radius:12px;
+      background:var(--box);border:2px solid rgba(0,0,0,.18);box-shadow:inset 0 2px 2px rgba(255,255,255,.65);
     }
+    .ansBlank input{
+      width:100%;height:100%;border:0;background:transparent;text-align:center;font:1000 26px/1 "Comic Sans MS","Comic Neue",sans-serif;
+      color:var(--ink);outline:none;padding:0 8px;
+    }
+    .sentence{font-size:26px;font-weight:900;line-height:1.24}
+    .inlineBlank{
+      display:inline-flex;vertical-align:middle;width:132px;min-width:132px;height:48px;border-radius:12px;
+      background:var(--box);border:2px solid rgba(0,0,0,.18);
+    }
+    .inlineBlank input{
+      width:100%;height:100%;border:0;background:transparent;text-align:center;font:1000 26px/1 "Comic Sans MS","Comic Neue",sans-serif;outline:none;
+    }
+    .helperText{font-size:15px;font-weight:1000;color:#475569}
+    .feedback{
+      margin-top:12px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.7);font-size:18px;font-weight:900;display:none
+    }
+    .feedback.good{display:block;background:var(--softOkay);border:1px solid rgba(22,163,74,.35)}
+    .feedback.bad{display:block;background:var(--softBad);border:1px solid rgba(225,29,72,.28)}
+    .donePanel{
+      align-items:center;justify-content:center;text-align:center;
+    }
+    .doneMedal{
+      width:98px;height:98px;border-radius:50%;display:grid;place-items:center;
+      font-size:52px;background:linear-gradient(180deg,#fde68a,#fbbf24);box-shadow:0 10px 24px rgba(0,0,0,.14);
+    }
+    .doneBig{font-size:34px;font-weight:1000}
+    .doneText{font-size:22px;font-weight:900;line-height:1.3;max-width:560px}
+    .rewardEggCard{
+      margin-top:14px;padding:14px 16px;border-radius:22px;
+      background:linear-gradient(180deg,#fff7d6,#fef3c7);
+      border:2px solid rgba(245,158,11,.28);
+      box-shadow:0 10px 24px rgba(15,23,42,.08);
+      display:flex;flex-direction:column;align-items:center;gap:10px;
+      width:min(100%,320px);
+    }
+    .rewardEggText{
+      font-size:24px;font-weight:1000;line-height:1.15;color:#92400e;
+    }
+    .rewardEggSub{
+      font-size:14px;font-weight:1000;color:#7c5c09;
+    }
+    .rewardEggImg{
+      width:min(100%,180px);height:auto;display:block;
+      filter:drop-shadow(0 10px 18px rgba(15,23,42,.14));
+    }
+    #panelDone.active .rewardEggCard{
+      animation:eggPopCard .55s cubic-bezier(.2,.9,.2,1.2) both;
+    }
+    #panelDone.active .rewardEggImg{
+      transform-origin:center bottom;
+      animation:eggPopImg .72s cubic-bezier(.2,.9,.2,1.2) .08s both, eggBounce 1.6s ease-in-out .9s infinite;
+    }
+    #panelDone.active .rewardEggText,
+    #panelDone.active .rewardEggSub{
+      animation:eggFadeUp .45s ease .18s both;
+    }
+    @keyframes eggPopCard{
+      0%{opacity:0;transform:scale(.86) translateY(14px)}
+      70%{opacity:1;transform:scale(1.04) translateY(-4px)}
+      100%{opacity:1;transform:scale(1) translateY(0)}
+    }
+    @keyframes eggPopImg{
+      0%{opacity:0;transform:scale(.45) rotate(-8deg)}
+      60%{opacity:1;transform:scale(1.12) rotate(4deg)}
+      100%{opacity:1;transform:scale(1) rotate(0deg)}
+    }
+    @keyframes eggBounce{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-7px)}
+    }
+    @keyframes eggFadeUp{
+      0%{opacity:0;transform:translateY(8px)}
+      100%{opacity:1;transform:translateY(0)}
+    }
+
+    .barModel{position:relative;width:min(100%,560px)}
+    .topNumbers{position:relative;height:28px;font-size:22px;font-weight:1000}
+    .topNumbers span{position:absolute;transform:translateX(-50%)}
+    .braceTopWrap,.braceBottomWrap{position:relative;height:28px}
+    .braceTop,.braceBottom{position:absolute;height:28px}
+    .braceSvg{width:100%;height:100%;display:block}
+    .braceSvg path{fill:none;stroke:var(--line);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .stackBar{display:flex;height:42px;border:2px solid var(--line);overflow:hidden;background:#fff}
+    .segBlue,.segPink{display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:1000;border-right:2px solid var(--line)}
+    .segBlue{background:var(--blue)}
+    .segPink{background:var(--pink);border-right:0}
+    .underQuestion{position:absolute;left:50%;top:20px;transform:translateX(-50%);font-size:32px;font-weight:1000}
+
+    .compareArea{position:relative;width:min(100%,640px)}
+    .compareTopNumber{position:relative;height:28px;font-size:22px;font-weight:1000}
+    .compareTopNumber span{position:absolute;transform:translateX(-50%)}
+    .compareRow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .compareLabel{width:92px;text-align:right;font-size:22px;font-weight:1000}
+    .barHolder{position:relative;flex:1;height:42px}
+    .fullBar,.smallBar{position:absolute;left:0;top:0;height:42px;border:2px solid var(--line);background:var(--pink)}
+    .smallBar{background:var(--blue)}
+    .dashSmall,.dashFull{position:absolute;top:-2px;height:64px;border-left:3px dashed var(--line)}
+    .bottomBraceSplit{position:relative;height:28px;margin-left:102px}
+    .bottomBraceLeft,.bottomBraceRight{position:absolute;height:28px;top:0}
+    .bottomLabels{position:relative;height:30px;margin-left:102px;font-size:22px;font-weight:1000}
+    .bottomLabels span{position:absolute;transform:translateX(-50%)}
+
+    .ok{box-shadow:0 0 0 3px rgba(22,163,74,.28) inset}
+    .bad{box-shadow:0 0 0 3px rgba(225,29,72,.24) inset}
+
+    #workPanelBd{padding:0;overflow:hidden;display:flex;flex-direction:column;min-height:0;height:100%}
+    .sharedDragTray{
+      padding:10px 12px;border-bottom:1px solid rgba(15,23,42,.08);background:#f8fbff;
+      display:none;flex-direction:column;gap:8px;
+    }
+    .sharedDragTray.show{display:flex}
+    .sharedDragTray .modelLabelCard{
+      width:100%;align-self:stretch;margin:0;background:#eef6ff;
+    }
+    .sharedDragTray .dragBank{min-height:52px}
+    .workCoach{
+      padding:14px 16px;border-bottom:1px solid rgba(15,23,42,.08);background:var(--coach);
+      font-size:18px;font-weight:1000;line-height:1.2;
+    }
+    .workCoach small{display:block;margin-top:5px;font-size:13px;color:#7c5c09}
+    .workCard{flex:1;display:flex;flex-direction:column;min-height:0;background:transparent}
+    .workCanvasWrap{flex:1;min-height:0;display:flex;padding:0;height:100%}
+    #workCanvas{flex:1;width:100%;height:100%;min-height:100%;display:block;background:var(--workspace);border:0;touch-action:none}
 
     .footer{
-      padding:10px 14px;
-      font-size:13px;
-      color:var(--soft);
-      text-align:left;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;
+      border-top:1px solid rgba(15,23,42,.08);background:rgba(255,255,255,.74);font-size:12px;font-weight:900;color:var(--muted)
     }
+    .credit{color:rgba(15,23,42,.72)}
+    #confettiCanvas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999}
 
-    .stage-overlay{
-      position:fixed;
-      inset:0;
-      background:#fff;
-      display:none;
-      z-index:3000;
+    @media (max-width:1360px){
+      .questionArea{grid-template-columns:minmax(250px,.8fr) minmax(0,1.2fr)}
+      .problemText{font-size:19px}
+      .sentence{font-size:23px}
+      .eqBox{font-size:24px}
+      .compareLabel,.topNumbers,.compareTopNumber,.bottomLabels,.segBlue,.segPink{font-size:20px}
     }
-    .stage-overlay.open{display:block}
-    .stage-frame{
-      width:100%;
-      height:100%;
-      border:none;
-      display:block;
-      background:#fff;
-    }
-    .overlay-close{
-      position:fixed;
-      top:8px; right:8px;
-      width:34px; height:34px;
-      border:none; border-radius:50%;
-      background:rgba(20,28,50,.18);
-      color:#fff;
-      font:700 20px/1 var(--font);
-      cursor:pointer;
-      z-index:3002;
-      opacity:.22;
-    }
-    .overlay-close:hover{opacity:.95;background:rgba(20,28,50,.65)}
-    .completion-banner{
-      position:fixed;
-      left:50%;
-      bottom:18px;
-      transform:translateX(-50%);
-      display:none;
-      align-items:center;
-      gap:10px;
-      max-width:min(92vw, 780px);
-      background:rgba(255,255,255,.98);
-      border:2px solid #d8def2;
-      border-radius:16px;
-      padding:12px;
-      box-shadow:0 14px 30px rgba(51,66,110,.18);
-      z-index:3004;
-    }
-    .completion-banner.show{display:flex}
-    .completion-text{
-      font-size:14px;
-      color:#4f5a84;
-      font-weight:700;
-      line-height:1.35;
-    }
-    .completion-banner .btn{
-      padding:10px 14px;
-      font-size:14px;
-      flex:0 0 auto;
-    }
-
-    .toast{
-      position:fixed;
-      left:50%;
-      bottom:18px;
-      transform:translateX(-50%) translateY(120%);
-      background:rgba(34,46,83,.94);
-      color:#fff;
-      padding:12px 16px;
-      border-radius:999px;
-      font-size:14px;
-      font-weight:700;
-      box-shadow:0 12px 26px rgba(22,29,54,.22);
-      z-index:3500;
-      transition:transform .18s ease;
-      pointer-events:none;
-    }
-    .toast.show{transform:translateX(-50%) translateY(0)}
-
-    @media (max-width:1120px){
-      .hero{grid-template-columns:1fr}
-      .stage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .practice-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
-    }
-    @media (max-width:640px){
-      .page{width:min(100vw, calc(100vw - 10px))}
-      .stage-grid{grid-template-columns:1fr}
-      .practice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .actions{gap:8px}
-      .btn{font-size:14px}
-      .completion-banner{flex-direction:column; align-items:stretch}
+    @media (max-width:1100px){
+      body{overflow:auto}
+      .app{height:auto;min-height:100vh}
+      .main{grid-template-columns:1fr}
+      .questionArea{grid-template-columns:1fr}
+      .storyCol{order:1}
+      .stageCol{order:2;min-height:640px}
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <section class="card hero">
-      <div class="pet-card">
-        <div class="mini-pill">⭐ Stage Journey</div>
-        <div class="pet-preview" id="heroPetPreview"><img id="heroPetImg" alt="Current pet stage"><div class="hidden-reward-note" id="heroPetHidden">Clear a stage to reveal the pet picture.</div></div>
-        <div class="pet-title" id="heroPetTitle">A Mystery Egg Awaits</div>
-        <p class="pet-sub" id="heroPetSub">Complete each stage in order. Your pet will evolve step by step until it becomes King Hullabaloo!</p>
+  <div class="app">
+    <div class="topbar">
+      <div class="title">
+        <h1>Two-Part Word Problem — Step by Step</h1>
+        <div class="sub">For P3 pupils: a shorter 3-question mission, clear next step, and quick success.</div>
       </div>
+      <div class="toolbar">
+        <button class="btn" id="btnUnlockAudio" type="button">🔊 Unlock Audio</button>
+        <button class="btn soft" id="btnHint" type="button">💡 Show Hint</button>
+        <button class="btn" id="btnRestartSet" type="button">Restart Set</button>
+      </div>
+    </div>
 
-      <div class="hero-main">
-        <h1>Monster Quest — 8-Stage Pet Journey</h1>
-        <p>This hub locks the stages in order, remembers progress on the same device, and lets pupils continue their journey the next day.</p>
+    <div class="main">
+      <div class="card">
+        <div class="cardHd">
+          <div class="h">Question Display</div>
+          <div style="font-size:12px;font-weight:1000;color:#5a6780" id="difficultyBadge">Warm-Up Round</div>
+        </div>
+        <div class="questionArea">
+          <div class="storyCol">
+            <div class="storyTitle">
+              <div>
+                <h2>Word Problem</h2>
+                <div class="sub">Read first. Then finish part (a). Then part (b).</div>
+              </div>
+              <div class="questionTag">2-part question</div>
+            </div>
 
-        <div class="notice"><strong>Important:</strong> Upload this hub under the same <strong>limkimsze-maker.github.io</strong> domain as the 8 stage sites. That lets the hub detect stage completion automatically. After a stage is completed, pupils can stay on the reward page and press <strong>Next → Stage Map</strong> only when ready.</div>
+            <div class="progressStrip">
+              <div class="stepPill" id="stepRead">Read<small>Look at the question</small></div>
+              <div class="stepPill" id="stepA">Part (a)<small>Find the total</small></div>
+              <div class="stepPill" id="stepB">Part (b)<small>Find how many more</small></div>
+              <div class="stepPill" id="stepDone">Great Job<small>All correct</small></div>
+            </div>
 
-        <div class="actions">
-          <button class="btn primary" id="resumeBtn" type="button">▶ Resume Journey</button>
-          <button class="btn blue" id="replayBtn" type="button">⭐ Replay Latest</button>
-          <button class="btn pink" id="resetBtn" type="button">↺ Reset Device Progress</button>
+            <div class="journeyBox">
+              <div class="journeyTop">
+                <div class="journeyTitle" id="journeyTitle">Question 1 of 3</div>
+                <div class="journeyMeta" id="journeyMeta">3-question mission • 4 more to go</div>
+              </div>
+              <div class="journeyBar"><div class="journeyFill" id="journeyFill"></div></div>
+              <div class="streakRow">
+                <div class="streakLabel" id="streakLabel">🔥 Progress streak: 0 of 5</div>
+                <div class="streakDots" id="streakDots">
+                  <div class="streakDot" id="streak1">⭐</div>
+                  <div class="streakDot" id="streak2">⭐</div>
+                  <div class="streakDot" id="streak3">⭐</div>
+                  <div class="streakDot" id="streak4">⭐</div>
+                  <div class="streakDot" id="streak5">⭐</div>
+                </div>
+                <div class="streakText" id="streakText">Finish each question to light a star.</div>
+              </div>
+            </div>
+
+            <div class="coachBox" id="coachBox">Step 1: Read the question carefully.<small>Then do part (a) first. Add both numbers to find the total.</small></div>
+
+            <div class="problemText" id="problemText"></div>
+
+            <div class="sideNote" id="sideNote">Part (a) first: add both numbers. After that, part (b): bigger number minus smaller number.</div>
+          </div>
+
+          <div class="stageCol">
+            <div class="stageStack">
+              <div class="stagePanel active" id="panelA">
+                <div class="stageHead">
+                  <h3>Part (a)</h3>
+                  <div class="stageBadge" id="statusA">Do this first</div>
+                </div>
+                <div class="stagePrompt">➕ Find the total. Add both numbers.</div>
+                <div class="modelWrap">
+                  <div class="modelWrapInner">
+                    <div class="barModel" id="sumModel">
+                      <div class="topNumbers" id="sumTopNumbers">
+                        <div id="sumValueLeftZone" class="dropZone modelDrop topSlot" data-bank-id="sumBank"></div>
+                        <div id="sumValueRightZone" class="dropZone modelDrop topSlot" data-bank-id="sumBank"></div>
+                      </div>
+                      <div class="braceTopWrap">
+                        <div class="braceTop" id="sumBrace1"></div>
+                        <div class="braceTop" id="sumBrace2"></div>
+                      </div>
+                      <div class="stackBar">
+                        <div class="segBlue" id="sumSeg1"><div id="sumNameLeftZone" class="dropZone modelDrop barSlot" data-bank-id="sumBank"></div></div>
+                        <div class="segPink" id="sumSeg2"><div id="sumNameRightZone" class="dropZone modelDrop barSlot" data-bank-id="sumBank"></div></div>
+                      </div>
+                      <div class="braceBottomWrap">
+                        <div class="braceBottom" id="sumBraceBottom"></div>
+                        <div class="underQuestion">?</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="entryArea">
+                  <div class="eqBox">
+                    <span id="eqA1">0</span>
+                    <span>+</span>
+                    <span id="eqA2">0</span>
+                    <span>=</span>
+                    <span class="ansBlank"><input id="sumEqAns" inputmode="numeric" aria-label="Part a equation answer"></span>
+                  </div>
+                  <div class="sentence">
+                    They have <span class="inlineBlank"><input id="sumSentenceAns" inputmode="numeric" aria-label="Part a sentence answer"></span> <span id="itemPlural1">items</span> altogether.
+                  </div>
+                  <div class="helperText">Tip: The answer in the equation box and the sentence box should be the same.</div>
+                  <button class="btn success actionMain" id="actionBtnA" type="button">Check Answer</button>
+                </div>
+              </div>
+
+              <div class="stagePanel" id="panelB">
+                <div class="stageHead">
+                  <h3>Part (b)</h3>
+                  <div class="stageBadge" id="statusB">Now do this</div>
+                </div>
+                <div class="stagePrompt">➖ Find how many more. Bigger number − smaller number.</div>
+                <div class="modelWrap">
+                  <div class="modelWrapInner">
+                    <div class="compareArea" id="compareModel">
+                      <div class="compareTopNumber" id="compareTopNumber">
+                        <div id="diffValueTopZone" class="dropZone modelDrop topSlot" data-bank-id="diffBank"></div>
+                      </div>
+                      <div class="braceTopWrap" style="margin-left:116px">
+                        <div class="braceTop" id="compareTopBrace"></div>
+                      </div>
+
+                      <div class="compareRow">
+                        <div class="compareLabel"><div id="diffNameTopZone" class="dropZone modelDrop nameSlot" data-bank-id="diffBank"></div></div>
+                        <div class="barHolder">
+                          <div class="fullBar" id="largeBar"></div>
+                          <div class="dashFull" id="dashFull"></div>
+                        </div>
+                      </div>
+                      <div class="compareRow">
+                        <div class="compareLabel"><div id="diffNameBottomZone" class="dropZone modelDrop nameSlot" data-bank-id="diffBank"></div></div>
+                        <div class="barHolder">
+                          <div class="smallBar" id="smallBar"></div>
+                          <div class="dashSmall" id="dashSmall"></div>
+                          <div class="dashFull" id="dashFull2"></div>
+                        </div>
+                      </div>
+
+                      <div class="bottomBraceSplit">
+                        <div class="bottomBraceLeft" id="compareBottomLeft"></div>
+                        <div class="bottomBraceRight" id="compareBottomRight"></div>
+                      </div>
+                      <div class="bottomLabels">
+                        <div id="diffValueBottomZone" class="dropZone modelDrop bottomSlot" data-bank-id="diffBank"></div>
+                        <span id="compareBottomValRight">?</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="entryArea">
+                  <div class="eqBox">
+                    <span id="eqB1">0</span>
+                    <span>−</span>
+                    <span id="eqB2">0</span>
+                    <span>=</span>
+                    <span class="ansBlank"><input id="diffEqAns" inputmode="numeric" aria-label="Part b equation answer"></span>
+                  </div>
+                  <div class="sentence">
+                    <span id="largeNameSentence">Mia</span> has <span class="inlineBlank"><input id="diffSentenceAns" inputmode="numeric" aria-label="Part b sentence answer"></span> more <span id="itemPlural2">items</span> than <span id="smallNameSentence">Aiden</span>.
+                  </div>
+                  <div class="helperText">Tip: Start with the bigger number. Then subtract the smaller number.</div>
+                  <button class="btn success actionMain" id="actionBtnB" type="button">Check Answer</button>
+                </div>
+              </div>
+
+              <div class="stagePanel donePanel" id="panelDone">
+                <div class="doneMedal">⭐</div>
+                <div class="doneBig">Great job!</div>
+                <div class="rewardEggCard">
+                  <div class="rewardEggText">You found an egg!</div>
+                  <img class="rewardEggImg" src="https://raw.githubusercontent.com/limkimsze-maker/P3_More_Word_Problems_Monster_Quest/70379c39cf4fef1c8cee7503cb6d2b3adac8b030/1%20pet.png" alt="A mystery egg reward">
+                  <div class="rewardEggSub">Keep going and see what hatches next.</div>
+                </div>
+                <div class="doneText" id="doneText">You solved both parts correctly.</div>
+                <div class="helperText" id="doneMissionText">You finished all 3 questions.</div>
+                <button class="btn primary actionMain" id="actionBtnDone" type="button">Play Again</button>
+              </div>
+            </div>
+            <div class="feedback" id="feedback"></div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <section class="card progress-card">
-      <div class="progress-top">
-        <div class="progress-title">Journey Progress</div>
-        <div class="progress-meta" id="progressMeta">Next playable stage: Stage 1</div>
+      <div class="card" id="toolsCard">
+        <div class="cardHd">
+          <div class="h">Working Space</div>
+          <button class="btn" id="btnWorkClearTop" type="button">Clear Working</button>
+        </div>
+        <div id="workPanelBd">
+          <div class="sharedDragTray" id="sumDragCard">
+            <div class="modelLabelCard">
+              <div class="modelLabelHead">Drag names and numbers onto the model</div>
+              <div class="modelLabelHint" id="sumLabelHint">First, look at the names and numbers on the model.</div>
+              <div class="dragBankWrap" id="sumBankWrap">
+                <div class="dragBankTitle">Drag these cards onto the model.</div>
+                <div class="dragBank" id="sumBank" data-bank-id="sumBank"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sharedDragTray" id="diffDragCard">
+            <div class="modelLabelCard">
+              <div class="modelLabelHead">Drag names and numbers onto the model</div>
+              <div class="modelLabelHint" id="diffLabelHint">First, look at the names and numbers on the model.</div>
+              <div class="dragBankWrap" id="diffBankWrap">
+                <div class="dragBankTitle">Drag these cards onto the model.</div>
+                <div class="dragBank" id="diffBank" data-bank-id="diffBank"></div>
+              </div>
+            </div>
+          </div>
+          <div class="workCoach" id="workCoach">Step 1: Read the question, then solve part (a) first.<small>Write or draw here. Use the model to help you.</small></div>
+          <div class="workCard">
+            <div class="workCanvasWrap">
+              <canvas id="workCanvas"></canvas>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="progress-meta" id="progressCount">0 of 8 stages completed</div>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-dots" id="progressDots"></div>
-    </section>
+    </div>
 
-    <section class="card map-card">
-      <div class="section-head">
-        <div class="section-title">🗺️ Stage Map</div>
-        <div class="section-note" id="mapNote">Start from Stage 1.</div>
-      </div>
-      <div class="stage-grid" id="stageGrid"></div>
-    </section>
-
-    <section class="card practice-card">
-      <div class="section-head">
-        <div class="section-title">🎯 Try Any Topic</div>
-        <div class="section-note">Free practice. This does not unlock journey progress.</div>
-      </div>
-      <div class="practice-grid" id="practiceGrid"></div>
-    </section>
-
-    <div class="card footer">Progress is saved in this device’s browser. A pupil can stop after a stage and continue later on the same device. Later stages stay locked until the earlier stage is completed in order. <br><strong>Designed by Lim Kim Sze © 2026</strong></div>
-  </div>
-
-  <div class="toast" id="toast"></div>
-
-  <div class="stage-overlay" id="stageOverlay" aria-hidden="true">
-    <iframe class="stage-frame" id="stageFrame" title="Stage game"></iframe>
-    <button class="overlay-close" id="overlayClose" type="button" aria-label="Close stage">×</button>
-    <div class="completion-banner" id="completionBanner">
-      <div class="completion-text" id="completionText">Progress saved.</div>
-      <button class="btn primary" id="nextToMapBtn" type="button">Next → Stage Map</button>
+    <div class="footer">
+      <div class="credit">Designed by Lim Kim Sze © 2026</div>
+      <div>Step-by-step version: one active part at a time, instant feedback, and gentle challenge ramp</div>
     </div>
   </div>
 
+  <canvas id="confettiCanvas"></canvas>
+
   <script>
-    (() => {
-      'use strict';
+  (function(){
+    'use strict';
 
-      const STAGES = [
-        { stage:1, name:'Stage 1', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_1/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_1/1%20pet.png', fallback:'🥚' },
-        { stage:2, name:'Stage 2', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_2/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_2/2%20pet.png', fallback:'🐣' },
-        { stage:3, name:'Stage 3', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_3/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_3/3%20pet.png', fallback:'🪽' },
-        { stage:4, name:'Stage 4', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_4/', img:'https://raw.githubusercontent.com/limkimsze-maker/P3_More_Word_Problems_Monster_Quest_Pet_4/07c8969064c31eb25ed42738bb16103537ead466/4%20pet.png', fallback:'🕊️' },
-        { stage:5, name:'Stage 5', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_5/', img:'https://raw.githubusercontent.com/limkimsze-maker/P3_More_Word_Problems_Monster_Quest_Pet_5/4376abd2f8a1f1f854206c26b851f51a7a5d7fd5/5%20pet.png', fallback:'✨' },
-        { stage:6, name:'Stage 6', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_6/', img:'https://raw.githubusercontent.com/limkimsze-maker/P3_More_Word_Problems_Monster_Quest_Pet_6/af6e0dad323a865f2cc879403223c9bbc82aac2f/6%20pet.png', fallback:'🪄' },
-        { stage:7, name:'Stage 7', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_7/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_7/7%20pet.png', fallback:'👑' },
-        { stage:8, name:'Stage 8', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_8/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_8/8%20pet.png', fallback:'🏆' }
-      ];
-
-      const LS_COMPLETE = 'monsterQuest_highestCompleted';
-      const LS_JUST = 'monsterQuest_justUnlocked';
-
-      const heroPetPreview = document.getElementById('heroPetPreview');
-      const heroPetImg = document.getElementById('heroPetImg');
-      const heroPetHidden = document.getElementById('heroPetHidden');
-      const heroPetTitle = document.getElementById('heroPetTitle');
-      const heroPetSub = document.getElementById('heroPetSub');
-      const progressMeta = document.getElementById('progressMeta');
-      const progressCount = document.getElementById('progressCount');
-      const progressFill = document.getElementById('progressFill');
-      const progressDots = document.getElementById('progressDots');
-      const mapNote = document.getElementById('mapNote');
-      const stageGrid = document.getElementById('stageGrid');
-      const practiceGrid = document.getElementById('practiceGrid');
-      const resumeBtn = document.getElementById('resumeBtn');
-      const replayBtn = document.getElementById('replayBtn');
-      const resetBtn = document.getElementById('resetBtn');
-      const toast = document.getElementById('toast');
-
-      const overlay = document.getElementById('stageOverlay');
-      const frame = document.getElementById('stageFrame');
-      const overlayClose = document.getElementById('overlayClose');
-      const completionBanner = document.getElementById('completionBanner');
-      const completionText = document.getElementById('completionText');
-      const nextToMapBtn = document.getElementById('nextToMapBtn');
-
-      let toastTimer = null;
-      let pendingCompletionStage = 0;
-      let currentOpenStage = 0;
-      let pendingToast = '';
-
-      function clampCompleted(value){
-        const n = Number(value || 0);
-        if (!Number.isFinite(n)) return 0;
-        return Math.max(0, Math.min(STAGES.length, Math.floor(n)));
-      }
-
-      function getCompleted(){
-        return clampCompleted(localStorage.getItem(LS_COMPLETE));
-      }
-
-      function setCompleted(stage){
-        localStorage.setItem(LS_COMPLETE, String(clampCompleted(stage)));
-      }
-
-      function getUnlockedStage(){
-        return Math.min(getCompleted() + 1, STAGES.length);
-      }
-
-      function getLatestPlayableStage(){
-        const completed = getCompleted();
-        return completed >= STAGES.length ? STAGES.length : Math.max(1, completed + 1);
-      }
-
-      function getJustUnlocked(){
-        const raw = Number(localStorage.getItem(LS_JUST) || 0);
-        if (!Number.isFinite(raw)) return 0;
-        return Math.max(0, Math.min(STAGES.length, Math.floor(raw)));
-      }
-
-      function setJustUnlocked(stage){
-        if (stage >= 1 && stage <= STAGES.length) localStorage.setItem(LS_JUST, String(stage));
-        else localStorage.removeItem(LS_JUST);
-      }
-
-      function clearJustUnlocked(){
-        localStorage.removeItem(LS_JUST);
-      }
-
-      function showToast(message){
-        if (!message) return;
-        toast.textContent = message;
-        toast.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
-      }
-
-      function petInfo(completed){
-        if (completed <= 0) {
-          return {
-            img:'',
-            title:'A Mystery Reward Awaits',
-            sub:'Complete Stage 1 to reveal the first pet picture. Your pet will evolve step by step until it becomes King Hullabaloo!'
-          };
+    const SOUND_VER = '20260128a';
+    const sounds = {
+      correct: new Audio('./correct.mp3?v=' + SOUND_VER),
+      wrong: new Audio('./wrong.mp3?v=' + SOUND_VER),
+      tada: new Audio('./tada.mp3?v=' + SOUND_VER)
+    };
+    Object.values(sounds).forEach(a=>{ a.preload='auto'; a.playsInline=true; });
+    let soundUnlocked = false;
+    async function safePlay(a){ try{ a.pause(); a.currentTime=0; await a.play(); return true; }catch(e){ return false; } }
+    async function unlockSound(){
+      try{
+        for(const a of Object.values(sounds)){
+          a.muted = true; await safePlay(a); a.pause(); a.currentTime=0; a.muted = false;
         }
-        if (completed >= 8) {
-          return {
-            img: STAGES[7].img,
-            title:'King Hullabaloo!',
-            sub:'All 8 stages are complete. Your super pet has fully evolved.'
-          };
+        soundUnlocked = true;
+        const b = document.getElementById('btnUnlockAudio');
+        b.textContent = '🔊 Audio Unlocked';
+        b.disabled = true;
+        b.classList.add('primary');
+      }catch(e){}
+    }
+    async function playSound(name){
+      if(!soundUnlocked) await unlockSound();
+      const a=sounds[name];
+      if(!a) return;
+      await safePlay(a);
+    }
+    document.getElementById('btnUnlockAudio').addEventListener('click', unlockSound);
+    window.addEventListener('pointerdown', ()=>{ if(!soundUnlocked) unlockSound(); }, {once:true, passive:true});
+
+
+
+    let stageCompleteSent = false;
+    let stageCompleteTimer = null;
+    function signalStageComplete(stageNumber){
+      if(stageCompleteSent) return;
+      stageCompleteSent = true;
+      try {
+        const key = 'monsterQuest_highestCompleted';
+        const current = Number(localStorage.getItem(key) || 0);
+        if (stageNumber > current) localStorage.setItem(key, String(stageNumber));
+        localStorage.setItem('monsterQuest_justUnlocked', String(Math.min(8, stageNumber + 1)));
+      } catch (e) {}
+
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: 'monster-quest-stage-complete',
+            stage: stageNumber,
+            nextStage: Math.min(8, stageNumber + 1)
+          }, '*');
+          return;
         }
-        if (completed === 7) {
-          return {
-            img: STAGES[6].img,
-            title:'Prince Hullabaloo',
-            sub:'You have cleared 7 stages. One final stage remains.'
-          };
-        }
+      } catch (e) {}
+
+      try {
+        const hubCandidates = [
+          './monster-quest-stage-hub-return-to-map.html?completed=' + stageNumber,
+          './monster-quest-stage-hub.html?completed=' + stageNumber,
+          '../monster-quest-stage-hub-return-to-map.html?completed=' + stageNumber,
+          '../monster-quest-stage-hub.html?completed=' + stageNumber
+        ];
+        window.location.href = hubCandidates[0];
+      } catch (e) {}
+    }
+
+    function queueStageComplete(stageNumber, delayMs){
+      if(stageCompleteSent) return;
+      clearTimeout(stageCompleteTimer);
+      stageCompleteTimer = setTimeout(()=>signalStageComplete(stageNumber), Math.max(0, delayMs || 0));
+    }
+
+    const NAME_PAIRS = [
+      ['Aiden','Mia'],['Ryan','Olivia'],['Ethan','Sophie'],['Lucas','Emma'],['Noah','Chloe'],['Daniel','Grace']
+    ];
+    const ITEMS = [
+      ['masks','mask'],['stickers','sticker'],['marbles','marble'],['books','book'],['toy cars','toy car'],['shells','shell']
+    ];
+
+    const els = {
+      problemText: document.getElementById('problemText'),
+      coachBox: document.getElementById('coachBox'),
+      sideNote: document.getElementById('sideNote'),
+      workCoach: document.getElementById('workCoach'),
+      sumLabelHint: document.getElementById('sumLabelHint'),
+      diffLabelHint: document.getElementById('diffLabelHint'),
+      sumBankWrap: document.getElementById('sumBankWrap'),
+      sumBank: document.getElementById('sumBank'),
+      diffBankWrap: document.getElementById('diffBankWrap'),
+      diffBank: document.getElementById('diffBank'),
+      sumDragCard: document.getElementById('sumDragCard'),
+      diffDragCard: document.getElementById('diffDragCard'),
+      sumNameLeftZone: document.getElementById('sumNameLeftZone'),
+      sumNameRightZone: document.getElementById('sumNameRightZone'),
+      sumValueLeftZone: document.getElementById('sumValueLeftZone'),
+      sumValueRightZone: document.getElementById('sumValueRightZone'),
+      diffNameTopZone: document.getElementById('diffNameTopZone'),
+      diffNameBottomZone: document.getElementById('diffNameBottomZone'),
+      diffValueTopZone: document.getElementById('diffValueTopZone'),
+      diffValueBottomZone: document.getElementById('diffValueBottomZone'),
+      difficultyBadge: document.getElementById('difficultyBadge'),
+      feedback: document.getElementById('feedback'),
+      doneText: document.getElementById('doneText'),
+      doneMissionText: document.getElementById('doneMissionText'),
+      journeyTitle: document.getElementById('journeyTitle'),
+      journeyMeta: document.getElementById('journeyMeta'),
+      journeyFill: document.getElementById('journeyFill'),
+      streakLabel: document.getElementById('streakLabel'),
+      streakText: document.getElementById('streakText'),
+      streakDots: [1,2,3].map(n=>document.getElementById('streak'+n)),
+      actionBtnA: document.getElementById('actionBtnA'),
+      actionBtnB: document.getElementById('actionBtnB'),
+      actionBtnDone: document.getElementById('actionBtnDone'),
+      panelA: document.getElementById('panelA'),
+      panelB: document.getElementById('panelB'),
+      panelDone: document.getElementById('panelDone'),
+      stepRead: document.getElementById('stepRead'),
+      stepA: document.getElementById('stepA'),
+      stepB: document.getElementById('stepB'),
+      stepDone: document.getElementById('stepDone'),
+      statusA: document.getElementById('statusA'),
+      statusB: document.getElementById('statusB'),
+      sumTopNumbers: document.getElementById('sumTopNumbers'),
+      sumBrace1: document.getElementById('sumBrace1'),
+      sumBrace2: document.getElementById('sumBrace2'),
+      sumBraceBottom: document.getElementById('sumBraceBottom'),
+      sumSeg1: document.getElementById('sumSeg1'),
+      sumSeg2: document.getElementById('sumSeg2'),
+      eqA1: document.getElementById('eqA1'),
+      eqA2: document.getElementById('eqA2'),
+      eqB1: document.getElementById('eqB1'),
+      eqB2: document.getElementById('eqB2'),
+      sumEqAns: document.getElementById('sumEqAns'),
+      sumSentenceAns: document.getElementById('sumSentenceAns'),
+      diffEqAns: document.getElementById('diffEqAns'),
+      diffSentenceAns: document.getElementById('diffSentenceAns'),
+      itemPlural1: document.getElementById('itemPlural1'),
+      itemPlural2: document.getElementById('itemPlural2'),
+      compareTopNumber: document.getElementById('compareTopNumber'),
+      compareTopBrace: document.getElementById('compareTopBrace'),
+      largeBar: document.getElementById('largeBar'),
+      smallBar: document.getElementById('smallBar'),
+      dashSmall: document.getElementById('dashSmall'),
+      dashFull: document.getElementById('dashFull'),
+      dashFull2: document.getElementById('dashFull2'),
+      compareBottomLeft: document.getElementById('compareBottomLeft'),
+      compareBottomRight: document.getElementById('compareBottomRight'),
+      compareBottomValRight: document.getElementById('compareBottomValRight'),
+      largeNameSentence: document.getElementById('largeNameSentence'),
+      smallNameSentence: document.getElementById('smallNameSentence')
+    };
+
+    const TOTAL_QUESTIONS = 3;
+    let state = null;
+    let solvedCount = 0;
+
+
+    function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+    function pick(arr){ return arr[randInt(0,arr.length-1)]; }
+    function readInt(input){
+      const v = String(input.value || '').trim();
+      if(!/^\d+$/.test(v)) return NaN;
+      return Number(v);
+    }
+    function clearMark(el){
+      el.classList.remove('ok','bad');
+      el.parentElement.classList.remove('ok','bad');
+    }
+    function mark(el, ok){
+      clearMark(el);
+      el.parentElement.classList.add(ok ? 'ok' : 'bad');
+    }
+    function clearInputs(){
+      [els.sumEqAns, els.sumSentenceAns, els.diffEqAns, els.diffSentenceAns].forEach(el=>{
+        el.value=''; clearMark(el);
+      });
+      [els.sumNameLeftZone, els.sumNameRightZone, els.sumValueLeftZone, els.sumValueRightZone, els.diffNameTopZone, els.diffNameBottomZone, els.diffValueTopZone, els.diffValueBottomZone].forEach(zone=>zone.classList.remove('ok','bad','over'));
+      els.feedback.className='feedback';
+      els.feedback.textContent='';
+    }
+
+    function braceTopSVG(){
+      return `<svg class="braceSvg" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M4 18 C4 10 6 6 12 6 L45 6 C47 6 48.5 6 50 2 C51.5 6 53 6 55 6 L88 6 C94 6 96 10 96 18"/></svg>`;
+    }
+    function braceBottomSVG(){
+      return `<svg class="braceSvg" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M4 6 C4 14 6 18 12 18 L45 18 C47 18 48.5 18 50 22 C51.5 18 53 18 55 18 L88 18 C94 18 96 14 96 6"/></svg>`;
+    }
+    function setBrace(el,left,width,type){
+      el.style.left = left + '%';
+      el.style.width = width + '%';
+      el.innerHTML = (type==='top' ? braceTopSVG() : braceBottomSVG());
+    }
+
+    function positionZoneAtBraceCenter(zone, brace){
+      if(!zone || !brace) return;
+      const parent = zone.offsetParent || zone.parentElement;
+      if(!parent) return;
+      const parentRect = parent.getBoundingClientRect();
+      const braceRect = brace.getBoundingClientRect();
+      if(!parentRect.width || !braceRect.width) return;
+      const centerPx = (braceRect.left + braceRect.width / 2) - parentRect.left;
+      zone.style.left = centerPx + 'px';
+    }
+
+    function positionValueBoxes(){
+      positionZoneAtBraceCenter(els.sumValueLeftZone, els.sumBrace1);
+      positionZoneAtBraceCenter(els.sumValueRightZone, els.sumBrace2);
+      positionZoneAtBraceCenter(els.diffValueTopZone, els.compareTopBrace);
+      positionZoneAtBraceCenter(els.diffValueBottomZone, els.compareBottomLeft);
+    }
+
+    function fitActiveModel(){
+      const activeWraps = document.querySelectorAll('.stagePanel.active .modelWrap');
+      activeWraps.forEach(wrap=>{
+        const inner = wrap.querySelector('.modelWrapInner');
+        if(!inner) return;
+        inner.style.transform = 'scale(1)';
+        const wrapRect = wrap.getBoundingClientRect();
+        const innerRect = inner.getBoundingClientRect();
+        if(!wrapRect.width || !wrapRect.height || !innerRect.width || !innerRect.height) return;
+        const padX = 12;
+        const padY = 12;
+        const scale = Math.min(
+          (wrapRect.width - padX * 2) / innerRect.width,
+          (wrapRect.height - padY * 2) / innerRect.height,
+          1
+        );
+        inner.style.transform = `scale(${Math.max(0.72, scale)})`;
+      });
+      requestAnimationFrame(positionValueBoxes);
+    }
+
+    function getLabelPlan(){
+      if(solvedCount < 1){
         return {
-          img: STAGES[completed - 1].img,
-          title:`Stage ${completed} pet unlocked`,
-          sub:`You have cleared ${completed} ${completed === 1 ? 'stage' : 'stages'}. Keep going for the next evolution.`
+          sumEditable: [],
+          diffEditable: [],
+          sumHint: 'Look at the names and numbers on the model first.',
+          diffHint: 'Look at the names and numbers on the model first.'
         };
       }
-
-      function imageMarkup(item, cls=''){
-        return `<img class="${cls}" src="${item.img}" alt="${item.name} picture" onerror="this.style.display='none'">`;
+      if(solvedCount < 2){
+        return {
+          sumEditable: ['sumValueRightZone'],
+          diffEditable: ['diffValueBottomZone'],
+          sumHint: 'Now drag 1 number onto the model.',
+          diffHint: 'Now drag 1 number onto the model.'
+        };
       }
+      return {
+        sumEditable: ['sumNameLeftZone','sumNameRightZone','sumValueLeftZone','sumValueRightZone'],
+        diffEditable: ['diffNameTopZone','diffNameBottomZone','diffValueTopZone','diffValueBottomZone'],
+        sumHint: 'Final challenge: drag all the names and numbers onto the model.',
+        diffHint: 'Final challenge: drag all the names and numbers onto the model.'
+      };
+    }
 
-      function stageStatus(stage, completed){
-        if (stage <= completed) return 'completed';
-        if (stage <= getUnlockedStage()) return 'unlocked';
-        return 'locked';
-      }
+    let dragChipCounter = 0;
 
-      function stageStatusText(stage, completed){
-        const status = stageStatus(stage, completed);
-        if (status === 'completed') return 'Completed. You can replay this stage.';
-        if (status === 'unlocked') return 'Ready to play. Reward picture stays hidden until conquered.';
-        return `Complete Stage ${stage - 1} first.`;
-      }
-
-      function renderDots(completed){
-        progressDots.innerHTML = '';
-        for (let i = 1; i <= STAGES.length; i++) {
-          const dot = document.createElement('div');
-          dot.className = 'dot';
-          dot.textContent = i;
-          if (i <= completed) dot.classList.add('done');
-          else if (i === Math.min(completed + 1, STAGES.length)) dot.classList.add('on');
-          progressDots.appendChild(dot);
-        }
-      }
-
-      function render(){
-        const completed = getCompleted();
-        const unlocked = getUnlockedStage();
-        const justUnlocked = getJustUnlocked();
-        const pet = petInfo(completed);
-
-        if (completed > 0 && pet.img) {
-          heroPetPreview.classList.remove('hidden');
-          heroPetImg.src = pet.img;
-          heroPetImg.hidden = false;
-          heroPetHidden.hidden = false;
-        } else {
-          heroPetPreview.classList.add('hidden');
-          heroPetImg.removeAttribute('src');
-          heroPetImg.hidden = true;
-          heroPetHidden.hidden = false;
-        }
-        heroPetTitle.textContent = pet.title;
-        heroPetSub.textContent = pet.sub;
-
-        progressCount.textContent = `${completed} of ${STAGES.length} stages completed`;
-        progressMeta.textContent = `Next playable stage: Stage ${getLatestPlayableStage()}`;
-        progressFill.style.width = `${(completed / STAGES.length) * 100}%`;
-        mapNote.textContent = completed === 0 ? 'Start from Stage 1.' : completed >= STAGES.length ? 'All stages are complete.' : `Stage ${completed + 1} is ready.`;
-
-        resumeBtn.textContent = completed >= STAGES.length ? '▶ Replay Stage 8' : `▶ Resume Journey`;
-        replayBtn.textContent = completed === 0 ? '⭐ Replay Latest' : `⭐ Replay Stage ${completed}`;
-        replayBtn.disabled = completed === 0;
-
-        renderDots(completed);
-
-        stageGrid.innerHTML = '';
-        STAGES.forEach((item) => {
-          const status = stageStatus(item.stage, completed);
-          const card = document.createElement('div');
-          card.className = `stage-card ${status}`;
-          card.dataset.stage = String(item.stage);
-          if (status === 'unlocked' && justUnlocked === item.stage) card.classList.add('just-unlocked');
-
-          const statusLabel = status === 'completed' ? 'Completed' : status === 'unlocked' ? 'Unlocked' : 'Locked';
-          const buttonLabel = status === 'locked' ? 'Play' : 'Play';
-          const disabled = status === 'locked' ? 'disabled' : '';
-
-          const previewClass = status === 'completed' ? 'stage-preview' : 'stage-preview hidden';
-          const previewMarkup = status === 'completed'
-            ? imageMarkup(item)
-            : '<div class="hidden-reward-note">Reward picture hidden until this stage is conquered.</div>';
-
-          card.innerHTML = `
-            <div class="stage-top">
-              <div class="stage-name">${item.name}</div>
-              <div class="stage-chip">${statusLabel}</div>
-            </div>
-            <div class="${previewClass}">${previewMarkup}</div>
-            <div class="stage-text">${stageStatusText(item.stage, completed)}</div>
-            <button class="stage-btn" type="button" ${disabled}>${buttonLabel}</button>
-          `;
-
-          const btn = card.querySelector('.stage-btn');
-          if (status !== 'locked') btn.addEventListener('click', () => openStage(item.stage, false));
-          stageGrid.appendChild(card);
+    function createChip(label, bankId, locked=false){
+      const chip = document.createElement('div');
+      chip.className = 'dragChip' + (locked ? ' lockedChip' : '');
+      chip.textContent = label;
+      chip.dataset.label = label;
+      chip.dataset.bankId = bankId;
+      if(!locked){
+        chip.draggable = true;
+        chip.id = 'chip-' + (++dragChipCounter);
+        chip.addEventListener('dragstart', (e)=>{
+          chip.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', chip.id);
         });
-
-        practiceGrid.innerHTML = '';
-        STAGES.forEach((item) => {
-          const btn = document.createElement('button');
-          btn.className = 'practice-btn';
-          btn.type = 'button';
-          btn.textContent = item.name;
-          btn.addEventListener('click', () => openStage(item.stage, true));
-          practiceGrid.appendChild(btn);
+        chip.addEventListener('dragend', ()=>{
+          chip.classList.remove('dragging');
+          document.querySelectorAll('.dropZone,.dragBank').forEach(el=>el.classList.remove('over'));
         });
+        chip.addEventListener('dblclick', ()=>returnChipToBank(chip));
+      }
+      return chip;
+    }
 
-        if (justUnlocked >= 1 && justUnlocked <= STAGES.length) {
-          const el = stageGrid.querySelector(`[data-stage="${justUnlocked}"]`);
-          if (el) requestAnimationFrame(() => el.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'nearest' }));
+    function setZonePlaceholder(zone){
+      zone.innerHTML = '<div class="dropPlaceholder">Drop here</div>';
+      zone.classList.remove('filled');
+    }
+
+    function returnChipToBank(chip){
+      const bank = document.getElementById(chip.dataset.bankId);
+      const from = chip.parentElement;
+      if(from && from.classList.contains('dropZone')) setZonePlaceholder(from);
+      if(bank) bank.appendChild(chip);
+    }
+
+    function resetDropZone(zone, value, editable){
+      zone.classList.remove('ok','bad','locked','filled','over');
+      zone.dataset.correct = value;
+      zone.dataset.editable = editable ? '1' : '0';
+      zone.innerHTML = '';
+      if(editable){
+        setZonePlaceholder(zone);
+      }else{
+        zone.classList.add('locked','filled');
+        zone.appendChild(createChip(value, zone.dataset.bankId || '', true));
+      }
+    }
+
+    function markDropZone(zone, ok){
+      zone.classList.remove('ok','bad');
+      zone.classList.add(ok ? 'ok' : 'bad');
+    }
+
+    function fillBank(bank, labels){
+      bank.innerHTML = '';
+      labels.forEach(label=>bank.appendChild(createChip(label, bank.id)));
+    }
+
+    function getPlacedLabel(zone){
+      const chip = zone.querySelector('.dragChip:not(.lockedChip)');
+      return chip ? chip.dataset.label : '';
+    }
+
+    function wireDropTarget(el){
+      el.addEventListener('dragover', (e)=>{
+        e.preventDefault();
+        if(el.classList.contains('dropZone') && el.dataset.editable !== '1') return;
+        el.classList.add('over');
+      });
+      el.addEventListener('dragenter', (e)=>{
+        e.preventDefault();
+        if(el.classList.contains('dropZone') && el.dataset.editable !== '1') return;
+        el.classList.add('over');
+      });
+      el.addEventListener('dragleave', ()=>el.classList.remove('over'));
+      el.addEventListener('drop', (e)=>{
+        e.preventDefault();
+        el.classList.remove('over');
+        const chipId = e.dataTransfer.getData('text/plain');
+        const chip = chipId ? document.getElementById(chipId) : null;
+        if(!chip || chip.classList.contains('lockedChip')) return;
+        const from = chip.parentElement;
+        if(el.classList.contains('dragBank')){
+          if(from && from.classList.contains('dropZone')) setZonePlaceholder(from);
+          el.appendChild(chip);
+          return;
         }
-      }
-
-      function openStage(stage, freePractice){
-        const completed = getCompleted();
-        const unlocked = getUnlockedStage();
-        if (!freePractice && stage > unlocked && stage > completed) return;
-        const found = STAGES.find(s => s.stage === stage);
-        if (!found) return;
-        currentOpenStage = stage;
-        pendingCompletionStage = 0;
-        pendingToast = '';
-        completionBanner.classList.remove('show');
-        overlay.classList.add('open');
-        overlay.setAttribute('aria-hidden', 'false');
-        frame.src = freePractice ? `${found.url}${found.url.includes('?') ? '&' : '?'}freepractice=1` : found.url;
-      }
-
-      function closeStage(){
-        overlay.classList.remove('open');
-        overlay.setAttribute('aria-hidden', 'true');
-        frame.src = 'about:blank';
-        currentOpenStage = 0;
-        pendingCompletionStage = 0;
-        completionBanner.classList.remove('show');
-      }
-
-      function markStageComplete(stage){
-        const completed = getCompleted();
-        const nextCompleted = Math.max(completed, clampCompleted(stage));
-        setCompleted(nextCompleted);
-        if (nextCompleted < STAGES.length) setJustUnlocked(nextCompleted + 1);
-        else clearJustUnlocked();
-
-        if (nextCompleted >= STAGES.length) {
-          pendingToast = 'Adventure complete. King Hullabaloo is unlocked.';
-          completionText.textContent = 'Adventure complete. Pupils can enjoy the King Hullabaloo reward page, then press Next → Stage Map when ready.';
-        } else {
-          pendingToast = `Stage ${nextCompleted + 1} unlocked. Progress saved on this device.`;
-          completionText.textContent = `Progress saved. Stage ${nextCompleted + 1} is unlocked. Pupils can admire the reward page first, then press Next → Stage Map.`;
-        }
-        pendingCompletionStage = stage;
-        render();
-      }
-
-      function finishReturnToMap(){
-        closeStage();
-        render();
-        showToast(pendingToast);
-      }
-
-      function handleCompletedQuery(){
-        const params = new URLSearchParams(window.location.search);
-        const completedParam = params.get('completed');
-        if (!completedParam) return;
-        const stage = clampCompleted(completedParam);
-        if (stage >= 1) {
-          markStageComplete(stage);
-          showToast(pendingToast);
-        }
-        params.delete('completed');
-        const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}${window.location.hash || ''}`;
-        history.replaceState({}, '', clean);
-      }
-
-      resumeBtn.addEventListener('click', () => openStage(getLatestPlayableStage(), false));
-
-      replayBtn.addEventListener('click', () => {
-        const completed = getCompleted();
-        if (completed >= 1) openStage(completed, false);
+        if(el.dataset.editable !== '1') return;
+        if(from === el) return;
+        const existing = el.querySelector('.dragChip:not(.lockedChip)');
+        if(existing) returnChipToBank(existing);
+        if(from && from.classList.contains('dropZone')) setZonePlaceholder(from);
+        el.innerHTML = '';
+        el.appendChild(chip);
+        el.classList.add('filled');
       });
+    }
 
-      resetBtn.addEventListener('click', () => {
-        if (!window.confirm('Clear all saved stage progress on this device?')) return;
-        localStorage.removeItem(LS_COMPLETE);
-        localStorage.removeItem(LS_JUST);
-        render();
-        showToast('Progress cleared on this device.');
+    function initDragAndDrop(){
+      [els.sumBank, els.diffBank, els.sumNameLeftZone, els.sumNameRightZone, els.sumValueLeftZone, els.sumValueRightZone, els.diffNameTopZone, els.diffNameBottomZone, els.diffValueTopZone, els.diffValueBottomZone].forEach(wireDropTarget);
+    }
+
+    function configureModelLabels(){
+      const plan = getLabelPlan();
+      state.labelPlan = plan;
+      const sumMap = {
+        sumNameLeftZone: state.smallName,
+        sumNameRightZone: state.largeName,
+        sumValueLeftZone: String(state.smaller),
+        sumValueRightZone: String(state.larger)
+      };
+      const diffMap = {
+        diffNameTopZone: state.largeName,
+        diffNameBottomZone: state.smallName,
+        diffValueTopZone: String(state.larger),
+        diffValueBottomZone: String(state.smaller)
+      };
+
+      resetDropZone(els.sumNameLeftZone, state.smallName, plan.sumEditable.includes('sumNameLeftZone'));
+      resetDropZone(els.sumNameRightZone, state.largeName, plan.sumEditable.includes('sumNameRightZone'));
+      resetDropZone(els.sumValueLeftZone, String(state.smaller), plan.sumEditable.includes('sumValueLeftZone'));
+      resetDropZone(els.sumValueRightZone, String(state.larger), plan.sumEditable.includes('sumValueRightZone'));
+
+      resetDropZone(els.diffNameTopZone, state.largeName, plan.diffEditable.includes('diffNameTopZone'));
+      resetDropZone(els.diffNameBottomZone, state.smallName, plan.diffEditable.includes('diffNameBottomZone'));
+      resetDropZone(els.diffValueTopZone, String(state.larger), plan.diffEditable.includes('diffValueTopZone'));
+      resetDropZone(els.diffValueBottomZone, String(state.smaller), plan.diffEditable.includes('diffValueBottomZone'));
+
+      const sumLabels = plan.sumEditable.map(id=>sumMap[id]);
+      const diffLabels = plan.diffEditable.map(id=>diffMap[id]);
+      els.sumBankWrap.classList.toggle('show', sumLabels.length > 0);
+      els.diffBankWrap.classList.toggle('show', diffLabels.length > 0);
+      fillBank(els.sumBank, sumLabels);
+      fillBank(els.diffBank, diffLabels);
+
+      els.sumLabelHint.textContent = plan.sumHint;
+      els.diffLabelHint.textContent = plan.diffHint;
+    }
+
+    function checkModelLabels(part){
+      const targets = part==='a'
+        ? [els.sumNameLeftZone, els.sumNameRightZone, els.sumValueLeftZone, els.sumValueRightZone].filter(zone=>zone.dataset.editable === '1')
+        : [els.diffNameTopZone, els.diffNameBottomZone, els.diffValueTopZone, els.diffValueBottomZone].filter(zone=>zone.dataset.editable === '1');
+      if(!targets.length) return true;
+      let ok = true;
+      targets.forEach(zone=>{
+        const good = getPlacedLabel(zone) === zone.dataset.correct;
+        markDropZone(zone, good);
+        if(!good) ok = false;
       });
+      return ok;
+    }
 
-      overlayClose.addEventListener('click', closeStage);
-      nextToMapBtn.addEventListener('click', finishReturnToMap);
-
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && overlay.classList.contains('open')) closeStage();
-      });
-
-      window.addEventListener('message', (event) => {
-        const data = event.data || {};
-        if (data.type !== 'monster-quest-stage-complete') return;
-        const stage = clampCompleted(data.stage);
-        if (stage < 1) return;
-        markStageComplete(stage);
-        completionBanner.classList.add('show');
-      });
-
-      handleCompletedQuery();
+    function buildVariation(){
+      const pair = pick(NAME_PAIRS);
+      const item = pick(ITEMS);
+      let smaller, diff;
+      if(solvedCount < 2){
+        smaller = randInt(20, 80);
+        diff = randInt(10, 35);
+        els.difficultyBadge.textContent = 'Warm-Up Round';
+      }else if(solvedCount < 4){
+        smaller = randInt(50, 130);
+        diff = randInt(20, 60);
+        els.difficultyBadge.textContent = 'Practice Round';
+      }else{
+        smaller = randInt(120, 210);
+        diff = randInt(35, 110);
+        els.difficultyBadge.textContent = 'Final Challenge';
+      }
+      const larger = smaller + diff;
+      state = {
+        smallName: pair[0],
+        largeName: pair[1],
+        plural: item[0],
+        singular: item[1],
+        smaller,
+        larger,
+        diff,
+        total: smaller + larger,
+        current:'a',
+        __tadaPlayed:false
+      };
       render();
-    })();
+      configureModelLabels();
+      clearInputs();
+      updateStage();
+      updateJourney();
+      focusCurrentInput();
+    }
+
+    function render(){
+      const s = state;
+      els.problemText.innerHTML = `
+        <span class="line">${s.smallName} has ${s.smaller} ${s.plural}.</span>
+        <span class="line">${s.largeName} has ${s.larger} ${s.plural}.</span>
+        <div class="partLine"><span class="partTag">(a)</span><span>How many ${s.plural} do they have altogether?</span></div>
+        <div class="partLine"><span class="partTag">(b)</span><span>How many more ${s.plural} does ${s.largeName} have than ${s.smallName}?</span></div>
+      `;
+      els.eqA1.textContent = s.smaller;
+      els.eqA2.textContent = s.larger;
+      els.eqB1.textContent = s.larger;
+      els.eqB2.textContent = s.smaller;
+      els.itemPlural1.textContent = s.plural;
+      els.itemPlural2.textContent = s.plural;
+      els.largeNameSentence.textContent = s.largeName;
+      els.smallNameSentence.textContent = s.smallName;
+      els.doneText.textContent = `${s.smallName} and ${s.largeName} have ${s.total} ${s.plural} altogether. ${s.largeName} has ${s.diff} more ${s.plural} than ${s.smallName}.`;
+      els.doneMissionText.textContent = `You finished all ${TOTAL_QUESTIONS} questions.`;
+
+      const sumTotal = s.total;
+      const p1 = (s.smaller / sumTotal) * 100;
+      const p2 = (s.larger / sumTotal) * 100;
+      els.sumSeg1.style.width = p1 + '%';
+      els.sumSeg2.style.width = p2 + '%';
+      setBrace(els.sumBrace1,0,p1,'top');
+      setBrace(els.sumBrace2,p1,p2,'top');
+      setBrace(els.sumBraceBottom,0,100,'bottom');
+
+      const max = s.larger;
+      const smallPct = (s.smaller / max) * 100;
+      const diffPct = 100 - smallPct;
+      setBrace(els.compareTopBrace,0,100,'top');
+      els.largeBar.style.width = '100%';
+      els.smallBar.style.width = smallPct + '%';
+      els.dashSmall.style.left = smallPct + '%';
+      els.dashFull.style.left = '100%';
+      els.dashFull2.style.left = '100%';
+      setBrace(els.compareBottomLeft,0,smallPct,'bottom');
+      setBrace(els.compareBottomRight,smallPct,diffPct,'bottom');
+      els.compareBottomValRight.style.left = (smallPct + diffPct/2) + '%';
+      els.compareBottomValRight.textContent = '?';
+
+      requestAnimationFrame(()=>{ fitActiveModel(); positionValueBoxes(); });
+    }
+
+    function updateStreak(){
+      const lit = Math.max(0, Math.min(solvedCount, TOTAL_QUESTIONS));
+      els.streakDots.forEach((dot, idx)=>dot.classList.toggle('on', idx < lit));
+      els.streakLabel.textContent = `🔥 Progress streak: ${lit} of ${TOTAL_QUESTIONS}`;
+      if(state.current === 'setDone'){
+        els.streakText.textContent = 'All stars lit. Mission complete!';
+      }else if(lit===0){
+        els.streakText.textContent = 'Finish each question to light a star.';
+      }else{
+        const remain = Math.max(0, TOTAL_QUESTIONS - lit);
+        els.streakText.textContent = remain ? `${remain} more star${remain===1?'':'s'} to light.` : 'All stars lit. Mission complete!';
+      }
+    }
+
+    function updateJourney(){
+      updateStreak();
+      const upcomingNumber = Math.min(solvedCount + 1, TOTAL_QUESTIONS);
+      const completedPct = (solvedCount / TOTAL_QUESTIONS) * 100;
+      if(state.current === 'setDone'){
+        els.journeyTitle.textContent = `Mission complete! ${TOTAL_QUESTIONS} of ${TOTAL_QUESTIONS}`;
+        els.journeyMeta.textContent = 'All questions completed. Great job!';
+        els.journeyFill.style.width = '100%';
+        return;
+      }
+      if(state.current === 'bReady'){
+        const finishedNumber = Math.max(1, solvedCount);
+        els.journeyTitle.textContent = `Question ${finishedNumber} complete!`;
+        const remain = Math.max(0, TOTAL_QUESTIONS - solvedCount);
+        els.journeyMeta.textContent = `${TOTAL_QUESTIONS}-question mission • ${remain} more to go`;
+        els.journeyFill.style.width = completedPct + '%';
+        return;
+      }
+      els.journeyTitle.textContent = `Question ${upcomingNumber} of ${TOTAL_QUESTIONS}`;
+      const remain = Math.max(0, TOTAL_QUESTIONS - solvedCount - 1);
+      els.journeyMeta.textContent = `${TOTAL_QUESTIONS}-question mission • ${remain} more after this question`;
+      els.journeyFill.style.width = completedPct + '%';
+    }
+
+    function updateProgress(){
+      [els.stepRead, els.stepA, els.stepB, els.stepDone].forEach(el=>el.classList.remove('current','done'));
+      els.stepRead.classList.add('done');
+      if(state.current==='a') els.stepA.classList.add('current');
+      if(state.current==='aReady'){ els.stepA.classList.add('done'); els.stepB.classList.add('current'); }
+      if(state.current==='b'){ els.stepA.classList.add('done'); els.stepB.classList.add('current'); }
+      if(state.current==='bReady'){ els.stepA.classList.add('done'); els.stepB.classList.add('done'); els.stepDone.classList.add('current'); }
+      if(state.current==='setDone'){ els.stepA.classList.add('done'); els.stepB.classList.add('done'); els.stepDone.classList.add('done'); }
+    }
+
+    function updateStage(){
+      const s = state;
+      updateProgress();
+      els.panelA.classList.toggle('active', s.current==='a' || s.current==='aReady');
+      els.panelB.classList.toggle('active', s.current==='b' || s.current==='bReady');
+      els.panelDone.classList.toggle('active', s.current==='setDone');
+      els.sumDragCard.classList.toggle('show', s.current==='a' || s.current==='aReady');
+      els.diffDragCard.classList.toggle('show', s.current==='b' || s.current==='bReady');
+
+      if(s.current==='a'){
+        const needLabelA = state.labelPlan && state.labelPlan.sumEditable.length;
+        els.coachBox.innerHTML = needLabelA
+          ? 'Step 1: Drag the name and number cards onto the model, then do part (a).<small>Match the names and numbers to the correct places. Then add both numbers.</small>'
+          : 'Step 1: Do part (a) first.<small>Add both numbers to find the total.</small>';
+        els.workCoach.innerHTML = needLabelA
+          ? 'Step 1: Drag the cards onto the model first.<small>Then write the addition in the working space and press Check Answer.</small>'
+          : 'Step 1: Add both numbers to find the total.<small>Write the addition in the working space. Then press Check Answer.</small>';
+        els.sideNote.textContent = needLabelA
+          ? 'Part (a): drag the names and numbers onto the model, then add both numbers.'
+          : 'Part (a) first: add both numbers. Then the same button will bring pupils to part (b).';
+        els.statusA.textContent = 'Do this first';
+        els.statusB.textContent = 'Next';
+        els.actionBtnA.textContent = 'Check Answer';
+      }else if(s.current==='aReady'){
+        els.coachBox.innerHTML = 'Nice work!<small>Part (a) is correct. Press the button below to go to part (b).</small>';
+        els.workCoach.innerHTML = 'Part (a) is done.<small>Press the same button below the answer to move to part (b).</small>';
+        els.sideNote.textContent = 'Small win first. Now pupils move on to find how many more.';
+        els.statusA.textContent = 'Done';
+        els.statusB.textContent = 'Ready next';
+        els.actionBtnA.textContent = 'Go to Part (b)';
+      }else if(s.current==='b'){
+        const needLabelB = state.labelPlan && state.labelPlan.diffEditable.length;
+        els.coachBox.innerHTML = needLabelB
+          ? 'Step 2: Drag the name and number cards onto the model, then do part (b).<small>Match the names and numbers to the compare model. Then subtract.</small>'
+          : 'Step 2: Now do part (b).<small>Start with the bigger number. Then subtract the smaller number.</small>';
+        els.workCoach.innerHTML = needLabelB
+          ? `Step 2: Fill the model first.<small>Then write ${s.larger} − ${s.smaller} in the working space and press Check Answer.</small>`
+          : `Step 2: ${s.larger} − ${s.smaller}.<small>Write the subtraction in the working space. Then press Check Answer.</small>`;
+        els.sideNote.textContent = needLabelB
+          ? 'Part (b): drag the names and numbers onto the compare model. Then subtract.'
+          : 'Part (b): bigger number minus smaller number. This gives how many more.';
+        els.statusA.textContent = 'Done';
+        els.statusB.textContent = 'Now do this';
+        els.actionBtnB.textContent = 'Check Answer';
+      }else if(s.current==='bReady'){
+        const remain = Math.max(0, TOTAL_QUESTIONS - solvedCount);
+        els.coachBox.innerHTML = 'Great job!<small>You solved this question. Press the same button below to go to the next question.</small>';
+        els.workCoach.innerHTML = 'Question complete!<small>Press the same button below the answer to continue.</small>';
+        els.sideNote.textContent = remain > 0 ? `${remain} more question${remain===1?'':'s'} to go. Keep going!` : 'All questions complete.';
+        els.statusA.textContent = 'Done';
+        els.statusB.textContent = 'Done';
+        els.actionBtnB.textContent = solvedCount >= TOTAL_QUESTIONS ? 'Finish' : 'Next Question';
+      }else{
+        els.coachBox.innerHTML = `Mission complete!<small>You finished all ${TOTAL_QUESTIONS} questions.</small>`;
+        els.workCoach.innerHTML = 'All done!<small>You can clear the working space or play again.</small>';
+        els.sideNote.textContent = `You completed the full ${TOTAL_QUESTIONS}-question set.`;
+        els.statusA.textContent = 'Done';
+        els.statusB.textContent = 'Done';
+        if(!state.__tadaPlayed){
+          state.__tadaPlayed = true;
+          playSound('tada');
+        }
+      }
+      requestAnimationFrame(fitActiveModel);
+    }
+
+    function showFeedback(kind, text){
+      els.feedback.className = 'feedback ' + kind;
+      els.feedback.textContent = text;
+    }
+
+    function focusCurrentInput(){
+      requestAnimationFrame(()=>{
+        if(state.current==='a') els.sumEqAns.focus();
+        else if(state.current==='b') els.diffEqAns.focus();
+      });
+    }
+
+    function checkCurrent(){
+      const s = state;
+      if(s.current==='a'){
+        const labelsOk = checkModelLabels('a');
+        const a1 = readInt(els.sumEqAns);
+        const a2 = readInt(els.sumSentenceAns);
+        const ok1 = a1 === s.total;
+        const ok2 = a2 === s.total;
+        mark(els.sumEqAns, ok1);
+        mark(els.sumSentenceAns, ok2);
+        if(labelsOk && ok1 && ok2){
+          showFeedback('good', `Well done! ${s.smaller} + ${s.larger} = ${s.total}. Press the same button below to go to part (b).`);
+          playSound('correct');
+          s.current='aReady';
+          updateStage();
+          updateJourney();
+        }else if(!labelsOk){
+          showFeedback('bad', 'Check the name and number cards on the model too. Match each name and number to the correct place on the bar model.');
+          playSound('wrong');
+        }else{
+          showFeedback('bad', `Try again. Add ${s.smaller} and ${s.larger}. Both answer boxes should show ${s.total}.`);
+          playSound('wrong');
+        }
+      }else if(s.current==='aReady'){
+        s.current='b';
+        updateStage();
+        updateJourney();
+        focusCurrentInput();
+      }else if(s.current==='b'){
+        const labelsOk = checkModelLabels('b');
+        const b1 = readInt(els.diffEqAns);
+        const b2 = readInt(els.diffSentenceAns);
+        const ok1 = b1 === s.diff;
+        const ok2 = b2 === s.diff;
+        mark(els.diffEqAns, ok1);
+        mark(els.diffSentenceAns, ok2);
+        if(labelsOk && ok1 && ok2){
+          solvedCount += 1;
+          showFeedback('good', `Excellent! ${s.larger} − ${s.smaller} = ${s.diff}. Press the same button below for the next question.`);
+          playSound('correct');
+          fireConfetti();
+          if(solvedCount >= TOTAL_QUESTIONS){
+            s.current='setDone';
+          }else{
+            s.current='bReady';
+          }
+          updateStage();
+          updateJourney();
+          if(s.current==='setDone') queueStageComplete(1, 1800);
+        }else if(!labelsOk){
+          showFeedback('bad', 'Check the name and number cards on the compare model too. Put each name and number in the correct place before subtracting.');
+          playSound('wrong');
+        }else{
+          showFeedback('bad', `Try again. Start with the bigger number: ${s.larger} − ${s.smaller} = ${s.diff}. Both answer boxes should show ${s.diff}.`);
+          playSound('wrong');
+        }
+      }else if(s.current==='bReady'){
+        buildVariation();
+      }else if(s.current==='setDone'){
+        signalStageComplete(1);
+      }
+    }
+
+    document.getElementById('btnRestartSet').addEventListener('click', ()=>{ clearTimeout(stageCompleteTimer); stageCompleteSent = false; solvedCount = 0; buildVariation(); });
+    els.actionBtnA.addEventListener('click', checkCurrent);
+    els.actionBtnB.addEventListener('click', checkCurrent);
+    els.actionBtnDone.textContent = 'Continue to Stage Map';
+    els.actionBtnDone.addEventListener('click', checkCurrent);
+    document.getElementById('btnHint').addEventListener('click', ()=>{
+      const s = state;
+      if(s.current==='a') showFeedback('bad', state.labelPlan && state.labelPlan.sumEditable.length
+        ? `Hint: Put the number cards above the correct parts and the name cards inside the correct bars. Then add ${s.smaller} + ${s.larger}.`
+        : `Hint: Add both numbers. ${s.smaller} + ${s.larger} = ?`);
+      else if(s.current==='aReady') showFeedback('good', 'Part (a) is already correct. Press the same button below to go to part (b).');
+      else if(s.current==='b') showFeedback('bad', state.labelPlan && state.labelPlan.diffEditable.length
+        ? `Hint: Put the bigger number and bigger name in the top places. Put the smaller number and smaller name in the lower places. Then do ${s.larger} − ${s.smaller}.`
+        : `Hint: Bigger number minus smaller number. ${s.larger} − ${s.smaller} = ?`);
+      else if(s.current==='bReady') showFeedback('good', 'This question is complete. Press the same button below for the next question.');
+      else showFeedback('good', 'You finished the full set.');
+    });
+
+    document.addEventListener('keydown',(e)=>{
+      if(e.key==='Enter'){
+        const a=document.activeElement;
+        if(a && a.tagName==='INPUT'){ e.preventDefault(); checkCurrent(); }
+      }
+    });
+
+    // working canvas
+    const canvas = document.getElementById('workCanvas');
+    const wrap = document.querySelector('.workCanvasWrap');
+    const btnWorkClear = document.getElementById('btnWorkClearTop');
+    let ctx, drawing=false, strokes=[];
+    function resizeCanvas(){
+      const rect = canvas.getBoundingClientRect();
+      if(rect.width<2 || rect.height<2) return;
+      const ratio = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      canvas.width = Math.floor(rect.width * ratio);
+      canvas.height = Math.floor(rect.height * ratio);
+      ctx = canvas.getContext('2d');
+      ctx.setTransform(ratio,0,0,ratio,0,0);
+      redraw();
+    }
+    function redraw(){
+      if(!ctx) return;
+      const w = canvas.getBoundingClientRect().width;
+      const h = canvas.getBoundingClientRect().height;
+      ctx.clearRect(0,0,w,h);
+      ctx.fillStyle='#ffffff';
+      ctx.fillRect(0,0,w,h);
+      ctx.lineCap='round';
+      ctx.lineJoin='round';
+      ctx.strokeStyle='#0f172a';
+      ctx.lineWidth=3;
+      for(const s of strokes){
+        if(!s.length) continue;
+        ctx.beginPath();
+        ctx.moveTo(s[0].x, s[0].y);
+        for(let i=1;i<s.length;i++) ctx.lineTo(s[i].x, s[i].y);
+        ctx.stroke();
+      }
+    }
+    function pos(e){ const r=canvas.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+    function down(e){ e.preventDefault(); canvas.setPointerCapture(e.pointerId); drawing=true; const p=pos(e); strokes.push([p]); redraw(); }
+    function move(e){ if(!drawing) return; e.preventDefault(); strokes[strokes.length-1].push(pos(e)); redraw(); }
+    function up(e){ try{ canvas.releasePointerCapture(e.pointerId); }catch(_){} drawing=false; }
+    canvas.addEventListener('pointerdown',down);
+    canvas.addEventListener('pointermove',move);
+    canvas.addEventListener('pointerup',up);
+    canvas.addEventListener('pointercancel',up);
+    btnWorkClear.addEventListener('click',()=>{ strokes=[]; redraw(); });
+    new ResizeObserver(()=>requestAnimationFrame(resizeCanvas)).observe(wrap);
+    const layoutObserver = new ResizeObserver(()=>{ if(state) requestAnimationFrame(fitActiveModel); });
+    document.querySelectorAll('.modelWrap, #sumModel, #compareModel, .stageCol').forEach(el=>layoutObserver.observe(el));
+    window.addEventListener('resize', ()=>{ if(state) requestAnimationFrame(fitActiveModel); });
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('load', ()=>{ if(state) requestAnimationFrame(fitActiveModel); });
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(()=>{ if(state) requestAnimationFrame(fitActiveModel); }).catch(()=>{});
+    }
+
+    // confetti
+    const confetti = {canvas:document.getElementById('confettiCanvas'),ctx:null,w:0,h:0,parts:[],until:0,raf:0};
+    confetti.ctx = confetti.canvas.getContext('2d');
+    function confettiResize(){
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+      confetti.w = Math.floor(window.innerWidth * dpr);
+      confetti.h = Math.floor(window.innerHeight * dpr);
+      confetti.canvas.width = confetti.w;
+      confetti.canvas.height = confetti.h;
+      confetti.canvas.style.width = '100vw';
+      confetti.canvas.style.height = '100vh';
+    }
+    function fireConfetti(){
+      confettiResize();
+      const now = performance.now();
+      confetti.until = now + 1500;
+      for(let i=0;i<150;i++){
+        const size = 6 + Math.random()*8;
+        confetti.parts.push({x:confetti.w*(0.15+Math.random()*0.7), y:confetti.h*(0.03+Math.random()*0.15), vx:(Math.random()*2-1)*6, vy:-2-Math.random()*5, g:.18+Math.random()*.22, r:size, rot:Math.random()*Math.PI, vr:(Math.random()*2-1)*0.18, life:0});
+      }
+      if(confetti.raf) return;
+      const step=(t)=>{
+        const ctx=confetti.ctx;
+        ctx.clearRect(0,0,confetti.w,confetti.h);
+        confetti.parts = confetti.parts.filter(p=>p.y<confetti.h+200 && p.life<260);
+        for(const p of confetti.parts){
+          p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life += 1;
+          ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+          const hue = (p.life*7 + (p.x+p.y)*0.002) % 360;
+          ctx.fillStyle = `hsl(${hue} 95% 60%)`;
+          ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);
+          ctx.restore();
+        }
+        if(t < confetti.until || confetti.parts.length){ confetti.raf=requestAnimationFrame(step); }
+        else { cancelAnimationFrame(confetti.raf); confetti.raf=0; ctx.clearRect(0,0,confetti.w,confetti.h); }
+      };
+      confetti.raf=requestAnimationFrame(step);
+    }
+    window.addEventListener('resize', confettiResize);
+
+    initDragAndDrop();
+    buildVariation();
+    requestAnimationFrame(()=>{ resizeCanvas(); fitActiveModel(); positionValueBoxes(); });
+  })();
   </script>
 </body>
 </html>
