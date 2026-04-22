@@ -85,18 +85,22 @@
     .modal{position:fixed;inset:0;background:rgba(20,26,52,.42);display:none;align-items:center;justify-content:center;padding:0;z-index:9999}
     .modal.show{display:flex}
     .modal-card{position:relative;width:100vw;height:100vh;background:white;border-radius:0;box-shadow:none;overflow:hidden}
-    .modal-head{position:absolute;left:18px;right:18px;top:16px;z-index:3;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 14px;border:2px solid #eef2ff;border-radius:22px;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);box-shadow:0 14px 34px rgba(16,24,40,.14)}
-    .modal-title-wrap{display:grid;gap:4px}
-    .modal-title{font-size:28px;font-weight:900}
-    .modal-sub{font-size:15px;color:var(--soft)}
     .iframe-wrap{position:absolute;inset:0;background:#edf3ff}
     iframe{position:absolute;inset:0;width:100%;height:100%;border:none;background:white}
-    .detect-pill{position:absolute;left:18px;bottom:22px;background:rgba(255,255,255,.96);border:2px solid #e6ebff;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:900;box-shadow:0 10px 24px rgba(46,67,139,.12);z-index:2}
-    .stage-complete-toast{position:absolute;right:18px;bottom:22px;max-width:360px;background:#ffffff;border:3px solid #ffd55d;border-radius:20px;padding:14px 16px;box-shadow:0 16px 40px rgba(20,26,52,.24);display:none;gap:8px;z-index:2}
+    .stage-meta{display:none}
+    .corner-hotspot{position:absolute;top:0;right:0;width:18px;height:18px;z-index:5}
+    .corner-tools{position:absolute;top:-64px;right:8px;z-index:6;display:flex;gap:8px;opacity:0;pointer-events:none;transition:top .18s ease,opacity .18s ease}
+    .corner-hotspot:hover + .corner-tools,
+    .corner-tools:hover,
+    .corner-tools:focus-within,
+    .corner-tools.show{top:8px;opacity:1;pointer-events:auto}
+    .tool-btn{width:42px;height:42px;padding:0;display:grid;place-items:center;border:none;border-radius:999px;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);box-shadow:0 10px 24px rgba(16,24,40,.18);font-size:20px;font-weight:900;cursor:pointer}
+    .tool-btn:hover{transform:translateY(-1px)}
+    .tool-btn:active{transform:translateY(0)}
+    .stage-complete-toast{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:min(92vw,430px);background:#ffffff;border:3px solid #ffd55d;border-radius:20px;padding:14px 16px;box-shadow:0 16px 40px rgba(20,26,52,.24);display:none;gap:8px;z-index:4}
     .stage-complete-toast.show{display:grid}
     .toast-title{font-size:22px;font-weight:900;color:#8d5c00}
     .toast-text{font-size:15px;line-height:1.4;color:#4d5672}
-    .modal-foot{position:absolute;right:18px;bottom:18px;z-index:2;display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap;padding:0;background:transparent;border:none}
 
     .confetti{
       position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10000;
@@ -116,14 +120,9 @@
     @media (max-width:640px){
       body{padding:12px}
       .stages-grid{grid-template-columns:1fr}
-      .modal-head{left:10px;right:10px;top:10px;padding:10px 12px;border-radius:18px}
-      .modal-head .btn{padding:10px 14px}
-      .modal-title{font-size:22px}
-      .modal-sub{font-size:13px}
-      .detect-pill{left:10px;bottom:12px;font-size:12px;padding:7px 12px}
-      .stage-complete-toast{left:10px;right:10px;bottom:12px;max-width:none}
-      .modal-foot{right:10px;bottom:12px}
-      .modal-foot #modalHint{display:none}
+      .corner-tools{right:6px}
+      .tool-btn{width:40px;height:40px;font-size:18px}
+      .stage-complete-toast{width:min(94vw,420px);bottom:12px}
     }
   </style>
 </head>
@@ -181,15 +180,17 @@
 
   <div class="modal" id="stageModal" aria-hidden="true">
     <div class="modal-card">
-      <div class="modal-head">
-        <div class="modal-title-wrap">
-          <div class="modal-title" id="modalTitle">Stage 1</div>
-          <div class="modal-sub" id="modalSub">Play inside this window so progress can be saved automatically.</div>
-        </div>
-        <button class="btn btn-ghost" id="closeModalBtn">✕ Close</button>
+      <div class="corner-hotspot" id="cornerHotspot" title="Show stage controls"></div>
+      <div class="corner-tools" id="cornerTools">
+        <button class="tool-btn" id="reloadStageBtn" aria-label="Reload stage" title="Reload stage">↻</button>
+        <button class="tool-btn" id="closeModalBtn" aria-label="Close stage" title="Close stage">✕</button>
       </div>
       <div class="iframe-wrap">
-        <div class="detect-pill" id="detectPill">Waiting for stage to load…</div>
+        <div class="stage-meta" aria-hidden="true">
+          <div id="modalTitle">Stage 1</div>
+          <div id="modalSub">Play inside this window so progress can be saved automatically.</div>
+          <div id="detectPill">Waiting for stage to load…</div>
+        </div>
         <iframe id="stageFrame" title="Stage game"></iframe>
         <div class="stage-complete-toast" id="stageCompleteToast">
           <div class="toast-title" id="toastTitle">Stage Complete!</div>
@@ -198,12 +199,6 @@
             <button class="btn btn-primary" id="toastNextBtn">▶ Next Stage</button>
             <button class="btn btn-ghost" id="toastBackBtn">Back to Map</button>
           </div>
-        </div>
-      </div>
-      <div class="modal-foot">
-        <div class="tiny" id="modalHint" style="display:none">Auto-save works when this hub and the stage sites are on the same GitHub Pages domain.</div>
-        <div class="button-row">
-          <button class="btn btn-ghost" id="reloadStageBtn">↻ Reload Stage</button>
         </div>
       </div>
     </div>
@@ -316,7 +311,9 @@
       toastText: document.getElementById('toastText'),
       toastNextBtn: document.getElementById('toastNextBtn'),
       toastBackBtn: document.getElementById('toastBackBtn'),
-      confetti: document.getElementById('confetti')
+      confetti: document.getElementById('confetti'),
+      cornerHotspot: document.getElementById('cornerHotspot'),
+      cornerTools: document.getElementById('cornerTools')
     };
 
     let state = loadState();
@@ -499,6 +496,7 @@
       els.stageFrame.src = stage.url;
       els.modal.classList.add('show');
       els.modal.setAttribute('aria-hidden', 'false');
+      showCornerToolsBriefly();
       startPolling();
     }
 
@@ -509,6 +507,7 @@
       els.modal.setAttribute('aria-hidden', 'true');
       els.stageFrame.src = 'about:blank';
       els.stageCompleteToast.classList.remove('show');
+      if (els.cornerTools) els.cornerTools.classList.remove('show');
       render();
     }
 
@@ -672,6 +671,16 @@
         .replace(/'/g, '&#39;');
     }
 
+
+    function showCornerToolsBriefly() {
+      if (!els.cornerTools) return;
+      els.cornerTools.classList.add('show');
+      clearTimeout(showCornerToolsBriefly._t);
+      showCornerToolsBriefly._t = setTimeout(() => {
+        els.cornerTools.classList.remove('show');
+      }, 1800);
+    }
+
     els.resumeBtn.addEventListener('click', () => {
       openStage(allStagesDone() ? 8 : nextUnlockedStage());
     });
@@ -701,6 +710,12 @@
       if (!next) return;
       openStage(next);
     });
+
+    if (els.cornerHotspot) {
+      els.cornerHotspot.addEventListener('click', () => {
+        els.cornerTools.classList.toggle('show');
+      });
+    }
 
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && els.modal.classList.contains('show')) closeStageModal();
