@@ -1,816 +1,869 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monster Quest — Staged Pet Journey</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Monster Quest — Stage Map</title>
+  <link rel="icon" href="./kimsze_sharp16.ico?v=20260111a" sizes="any">
+  <link rel="shortcut icon" href="./kimsze_sharp16.ico?v=20260111a">
+  <script async src="https://cdn.counter.dev/script.js" data-id="825e93b6-ce99-40ef-8bcc-125f13297433" data-utcoffset="8"></script>
   <style>
     :root{
-      --bg1:#fff8ef;
-      --bg2:#eef7ff;
-      --ink:#2e3350;
-      --soft:#6b7280;
-      --gold:#f8c646;
-      --gold-deep:#e8a91b;
-      --green:#17b26a;
-      --red:#ef5a6f;
-      --purple:#8b6dff;
-      --blue:#69a7ff;
-      --card:#ffffffee;
-      --shadow:0 14px 40px rgba(47,56,111,.18);
-      --radius:24px;
+      --bg:#eef7ea;
+      --card:#ffffff;
+      --ink:#1d2f21;
+      --soft:#5f7762;
+      --line:#d3e5cd;
+      --green:#9bd56e;
+      --green-dark:#3f7d2a;
+      --blue:#dff0ff;
+      --blue-dark:#2f6691;
+      --gold:#ffe589;
+      --gold-dark:#8a6500;
+      --lav:#f2e9ff;
+      --lav-dark:#6d28d9;
+      --danger:#ffe2e2;
+      --danger-dark:#9b3c3c;
+      --shadow:0 12px 30px rgba(36,70,42,.10);
+      --radius:22px;
+      --font:"Comic Sans MS","Comic Neue","Trebuchet MS",system-ui,sans-serif;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;font-family:"Trebuchet MS","Comic Sans MS",system-ui,sans-serif;color:var(--ink);background:
-      radial-gradient(circle at top left,#fff4d5 0,transparent 30%),
-      radial-gradient(circle at top right,#efe5ff 0,transparent 32%),
-      linear-gradient(180deg,var(--bg1),var(--bg2));
-      min-height:100%;}
-    body{padding:20px}
-    .shell{max-width:1350px;margin:0 auto;display:grid;gap:18px}
-    .panel{background:var(--card);backdrop-filter:blur(8px);border:3px solid #fff;border-radius:var(--radius);box-shadow:var(--shadow)}
-    .hero{display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:20px;padding:22px}
-    .pet-box{background:linear-gradient(180deg,#ffffff,#f8fbff);border-radius:22px;padding:18px;border:3px solid #e9eefb;display:grid;gap:12px;align-content:start}
-    .pet-frame{aspect-ratio:1/1;display:grid;place-items:center;background:linear-gradient(180deg,#f6f1ff,#eef7ff);border:3px dashed #d1d9f4;border-radius:22px;overflow:hidden}
-    .pet-frame img{width:100%;height:100%;object-fit:contain;background:#fff}
-    .pet-placeholder{font-size:90px;line-height:1}
-    .pet-stage-badge{display:inline-flex;align-items:center;gap:8px;background:#fff3c4;border:2px solid #ffd55d;padding:8px 14px;border-radius:999px;font-weight:900;width:max-content}
-    .hero-copy{display:grid;gap:14px;align-content:start}
-    h1{margin:0;font-size:clamp(28px,4vw,46px);line-height:1.05}
-    .lead{margin:0;font-size:clamp(16px,1.7vw,22px);line-height:1.45}
-    .hero-note{background:#fff;border:2px solid #e7ecff;border-radius:18px;padding:14px 16px;font-size:18px;line-height:1.45}
-    .button-row{display:flex;flex-wrap:wrap;gap:12px}
-    button{font:inherit}
-    .btn{border:none;border-radius:16px;padding:14px 20px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(65,82,168,.18);transition:transform .16s ease, opacity .16s ease, box-shadow .16s ease}
-    .btn:hover{transform:translateY(-2px)}
-    .btn:active{transform:translateY(0)}
-    .btn-primary{background:linear-gradient(180deg,#ffcf5a,#f1ad1f);color:#513605}
-    .btn-secondary{background:linear-gradient(180deg,#8ec2ff,#5a93ff);color:white}
-    .btn-ghost{background:white;color:var(--ink);border:2px solid #e7ebf8;box-shadow:none}
-    .btn-danger{background:linear-gradient(180deg,#ff8da0,#ef5a6f);color:white}
-    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
-
-    .progress-panel{padding:18px 22px;display:grid;gap:14px}
-    .progress-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-    .progress-title{font-size:24px;font-weight:900}
-    .progress-sub{font-size:17px;color:var(--soft)}
-    .bar-track{height:22px;background:#edf2ff;border-radius:999px;overflow:hidden;border:2px solid #dbe3ff}
-    .bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#7d67ff,#ffb23c);border-radius:999px;transition:width .35s ease}
-    .spark-row{display:flex;gap:10px;flex-wrap:wrap}
-    .spark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:20px;font-weight:900;background:#f3f5ff;border:2px solid #dde4ff;color:#8892c0}
-    .spark.done{background:#fff3c9;border-color:#ffd55d;color:#c97d00;transform:translateY(-2px)}
-    .spark.current{background:#eaf5ff;border-color:#9dccff;color:#2d6cdf}
-
-    .stages-panel{padding:22px;display:grid;gap:16px}
-    .section-title{font-size:28px;font-weight:900}
-    .stages-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-    .stage-card{position:relative;padding:16px;border-radius:22px;border:3px solid #edf1ff;background:linear-gradient(180deg,#ffffff,#f7fbff);display:grid;gap:12px;min-height:225px}
-    .stage-card.locked{background:linear-gradient(180deg,#f7f7fb,#eef1f5);opacity:.74}
-    .stage-card.current{border-color:#9cccff;box-shadow:0 10px 24px rgba(96,140,255,.18)}
-    .stage-card.done{border-color:#ffd55d;box-shadow:0 10px 24px rgba(246,183,41,.18)}
-    .stage-card.spotlight{border-color:#ff9f1a;box-shadow:0 0 0 5px rgba(255,190,92,.35),0 18px 38px rgba(255,159,26,.26);animation:stagePulse 1.15s ease-in-out infinite}
-    @keyframes stagePulse{
-      0%,100%{transform:translateY(0)}
-      50%{transform:translateY(-4px)}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--ink);
+      background:linear-gradient(180deg,#f6fbf1 0%, #ecf6ea 100%);
+      overflow:hidden;
     }
-    .stage-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-    .stage-name{font-size:24px;font-weight:900}
-    .stage-status{padding:6px 10px;border-radius:999px;font-size:14px;font-weight:900}
-    .status-locked{background:#eceff5;color:#77829b}
-    .status-current{background:#e8f4ff;color:#2c72d6}
-    .status-done{background:#fff4ca;color:#b47700}
-    .thumb{height:115px;border-radius:18px;background:linear-gradient(180deg,#f4f1ff,#eef7ff);border:2px dashed #d7ddf2;overflow:hidden;display:grid;place-items:center}
-    .thumb img{width:100%;height:100%;object-fit:contain;background:#fff}
-    .thumb .emoji{font-size:54px}
-    .stage-desc{font-size:15px;line-height:1.4;color:#4e5875;min-height:42px}
-    .tiny{font-size:13px;color:var(--soft)}
-
-    .footer-note{padding:16px 22px;font-size:16px;line-height:1.45;color:#4e5875}
-
-    .modal{position:fixed;inset:0;background:rgba(20,26,52,.42);display:none;align-items:center;justify-content:center;padding:0;z-index:9999}
-    .modal.show{display:flex}
-    .modal-card{position:relative;width:100vw;height:100vh;background:white;border-radius:0;box-shadow:none;overflow:hidden}
-    .modal-head{position:absolute;left:18px;right:18px;top:16px;z-index:3;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 14px;border:2px solid #eef2ff;border-radius:22px;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);box-shadow:0 14px 34px rgba(16,24,40,.14)}
-    .modal-title-wrap{display:grid;gap:4px}
-    .modal-title{font-size:28px;font-weight:900}
-    .modal-sub{font-size:15px;color:var(--soft)}
-    .iframe-wrap{position:absolute;inset:0;background:#edf3ff}
-    iframe{position:absolute;inset:0;width:100%;height:100%;border:none;background:white}
-    .detect-pill{position:absolute;left:18px;bottom:22px;background:rgba(255,255,255,.96);border:2px solid #e6ebff;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:900;box-shadow:0 10px 24px rgba(46,67,139,.12);z-index:2}
-    .stage-complete-toast{position:absolute;right:18px;bottom:22px;max-width:360px;background:#ffffff;border:3px solid #ffd55d;border-radius:20px;padding:14px 16px;box-shadow:0 16px 40px rgba(20,26,52,.24);display:none;gap:8px;z-index:2}
-    .stage-complete-toast.show{display:grid}
-    .toast-title{font-size:22px;font-weight:900;color:#8d5c00}
-    .toast-text{font-size:15px;line-height:1.4;color:#4d5672}
-    .modal-foot{position:absolute;right:18px;bottom:18px;z-index:2;display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap;padding:0;background:transparent;border:none}
-
-    .confetti{
-      position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10000;
+    .app{
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
     }
-    .piece{position:absolute;width:12px;height:18px;border-radius:4px;opacity:.9;animation:fall 2.4s linear forwards}
-    @keyframes fall{
-      from{transform:translateY(-10vh) rotate(0deg)}
-      to{transform:translateY(110vh) rotate(720deg)}
+    .shell{
+      width:min(1380px, calc(100vw - 18px));
+      margin:10px auto 14px;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      gap:14px;
+      min-height:calc(100vh - 24px);
+    }
+    .hero,
+    .card{
+      background:var(--card);
+      border:3px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .hero{
+      padding:18px 20px 16px;
+    }
+    .hero-top{
+      display:grid;
+      grid-template-columns:minmax(0,1.25fr) minmax(330px,.75fr);
+      gap:16px;
+      align-items:center;
+    }
+    .title-wrap h1{
+      margin:0;
+      font-size:clamp(30px, 3.3vw, 46px);
+      line-height:1.04;
+      color:var(--green-dark);
+    }
+    .title-wrap p{
+      margin:10px 0 0;
+      font-size:16px;
+      color:var(--soft);
+      font-weight:700;
+      line-height:1.45;
+    }
+    .hero-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .btn{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      border-radius:16px;
+      padding:13px 16px;
+      font:700 17px var(--font);
+      box-shadow:0 5px 0 rgba(0,0,0,.08);
+    }
+    .btn.primary{background:var(--green);color:#1f4410}
+    .btn.secondary{background:var(--blue);color:var(--blue-dark)}
+    .btn.warn{background:#ffe3a7;color:#76520b}
+    .btn.ghost{background:#eef5ea;color:#3f5d44}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+
+    .hero-side{
+      background:#f8fcf4;
+      border:2px solid #d8ead2;
+      border-radius:24px;
+      padding:14px;
+      display:grid;
+      gap:12px;
+    }
+    .status-row{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+    }
+    .pill{
+      background:#eef8e9;
+      color:var(--green-dark);
+      border:2px solid #cfe5c4;
+      border-radius:999px;
+      padding:10px 12px;
+      font-weight:700;
+      text-align:center;
+      min-height:48px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .progress-card{
+      display:grid;
+      grid-template-columns:120px 1fr;
+      gap:12px;
+      align-items:center;
+    }
+    .pet-frame{
+      width:120px;
+      height:120px;
+      border-radius:24px;
+      border:3px dashed #d7c7ff;
+      background:#faf5ff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      box-shadow:inset 0 -3px 0 rgba(255,255,255,.55);
+    }
+    .pet-frame img{
+      max-width:100%;
+      max-height:100%;
+      object-fit:contain;
+      filter:drop-shadow(0 10px 16px rgba(0,0,0,.12));
+    }
+    .pet-fallback{
+      font-size:50px;
+      line-height:1;
+    }
+    .progress-text{
+      display:grid;
+      gap:8px;
+    }
+    .progress-title{
+      font-size:25px;
+      font-weight:700;
+      color:#35503a;
+    }
+    .progress-sub{
+      font-size:15px;
+      color:var(--soft);
+      font-weight:700;
+      line-height:1.4;
+    }
+    .progress-bar{
+      height:14px;
+      border-radius:999px;
+      background:#e7eff8;
+      overflow:hidden;
+      box-shadow:inset 0 1px 2px rgba(0,0,0,.08);
+    }
+    .progress-fill{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,#7eb7e6,#9bd56e);
+      border-radius:999px;
+      transition:width .25s ease;
     }
 
-    .credit{font-weight:700}
-
-    .map-toast{
-      position:fixed;left:50%;top:18px;transform:translateX(-50%);
-      width:min(92vw,620px);background:#fffef8;border:3px solid #ffd55d;border-radius:22px;
-      padding:14px 18px;box-shadow:0 16px 40px rgba(20,26,52,.24);z-index:10001;display:none
+    .main-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.2fr) minmax(300px,.62fr);
+      gap:14px;
+      min-height:0;
     }
-    .map-toast.show{display:block}
-    .map-toast-title{font-size:24px;font-weight:900;color:#9a6400}
-    .map-toast-text{font-size:16px;line-height:1.45;color:#4d5672;margin-top:4px}
+    .map-card,
+    .info-card{
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+    .section-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .section-title{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:#edf8e8;
+      border:2px solid #cfe5c4;
+      color:var(--green-dark);
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:700;
+      font-size:18px;
+    }
+    .section-note{
+      font-size:15px;
+      color:var(--soft);
+      font-weight:700;
+    }
+
+    .stage-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+      flex:1;
+      align-content:start;
+    }
+    .stage-card{
+      position:relative;
+      border-radius:22px;
+      border:3px solid #d7e6d0;
+      background:#f9fdf6;
+      padding:14px 12px 12px;
+      box-shadow:0 8px 18px rgba(50,90,50,.07);
+      display:grid;
+      gap:10px;
+      min-height:170px;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .stage-card.unlocked{
+      border-color:#b9dfaa;
+      background:linear-gradient(180deg,#fcfffa 0%, #f2fde9 100%);
+    }
+    .stage-card.completed{
+      border-color:#f1d27a;
+      background:linear-gradient(180deg,#fffef7 0%, #fff6db 100%);
+    }
+    .stage-card.locked{
+      opacity:.78;
+      background:#f5f7f3;
+    }
+    .stage-card.just-unlocked{
+      animation:glowPulse 1.25s ease-in-out infinite alternate;
+    }
+    @keyframes glowPulse{
+      from{transform:translateY(0);box-shadow:0 8px 18px rgba(50,90,50,.07), 0 0 0 0 rgba(123,190,95,.18)}
+      to{transform:translateY(-2px);box-shadow:0 14px 28px rgba(50,90,50,.10), 0 0 0 8px rgba(123,190,95,.16)}
+    }
+    .stage-badge{
+      width:54px;
+      height:54px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:22px;
+      font-weight:700;
+      background:#edf5e8;
+      border:3px solid #d3e5c8;
+      color:#3e5e39;
+      box-shadow:inset 0 -3px 0 rgba(255,255,255,.55);
+    }
+    .stage-card.completed .stage-badge{
+      background:#fff1b8;
+      border-color:#e7c95b;
+      color:#76520b;
+    }
+    .stage-card.locked .stage-badge{
+      background:#eef0ed;
+      border-color:#d7ddd2;
+      color:#7a8479;
+    }
+    .stage-name{
+      font-size:24px;
+      font-weight:700;
+      color:#2d4b31;
+      line-height:1.05;
+    }
+    .stage-status{
+      font-size:14px;
+      font-weight:700;
+      color:var(--soft);
+      min-height:40px;
+      line-height:1.4;
+    }
+    .stage-btn{
+      margin-top:auto;
+      width:100%;
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      border-radius:16px;
+      padding:12px 12px;
+      font:700 17px var(--font);
+      box-shadow:0 5px 0 rgba(0,0,0,.08);
+      background:#dff0ff;
+      color:#275777;
+    }
+    .stage-card.completed .stage-btn{background:#ffe9a7;color:#76520b}
+    .stage-card.unlocked .stage-btn{background:#a8df7d;color:#1f4410}
+    .stage-card.locked .stage-btn{background:#e8ece7;color:#708070;cursor:not-allowed}
+
+    .info-stack{
+      display:grid;
+      gap:12px;
+      align-content:start;
+    }
+    .mini-card{
+      background:#fbfef8;
+      border:2px solid #d6e8cd;
+      border-radius:20px;
+      padding:14px;
+      display:grid;
+      gap:8px;
+    }
+    .mini-title{
+      font-size:18px;
+      font-weight:700;
+      color:#35503a;
+    }
+    .mini-text{
+      font-size:15px;
+      line-height:1.45;
+      color:var(--soft);
+      font-weight:700;
+    }
+    .tiny-steps{
+      display:grid;
+      gap:8px;
+      font-size:15px;
+      color:#35503a;
+      font-weight:700;
+    }
+    .stage-dots{
+      display:grid;
+      grid-template-columns:repeat(8,1fr);
+      gap:8px;
+      margin-top:4px;
+    }
+    .dot{
+      height:12px;
+      border-radius:999px;
+      background:#e6edf1;
+    }
+    .dot.on{background:linear-gradient(90deg,#7eb7e6,#9bd56e)}
+    .dot.done{background:#f1c74b}
+
+    .footer{
+      text-align:center;
+      color:var(--soft);
+      font-size:14px;
+      padding:4px 0 0;
+      font-weight:700;
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%) translateY(20px);
+      min-width:min(540px, calc(100vw - 28px));
+      max-width:calc(100vw - 28px);
+      background:#203225;
+      color:#fff;
+      border-radius:16px;
+      padding:13px 16px;
+      box-shadow:0 12px 24px rgba(0,0,0,.18);
+      font-size:16px;
+      font-weight:700;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s ease, transform .2s ease;
+      z-index:2000;
+      text-align:center;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    .stage-overlay{
+      position:fixed;
+      inset:0;
+      background:#ffffff;
+      display:none;
+      z-index:3000;
+    }
+    .stage-overlay.open{display:block}
+    .stage-frame{
+      width:100%;
+      height:100%;
+      border:none;
+      display:block;
+      background:#fff;
+    }
+    .overlay-close{
+      position:fixed;
+      top:8px;
+      right:8px;
+      width:32px;
+      height:32px;
+      border:none;
+      border-radius:50%;
+      background:rgba(15,23,42,.16);
+      color:#fff;
+      font:700 20px/1 var(--font);
+      cursor:pointer;
+      z-index:3002;
+      backdrop-filter:blur(4px);
+      -webkit-backdrop-filter:blur(4px);
+      opacity:.18;
+      transition:opacity .15s ease, transform .15s ease, background .15s ease;
+    }
+    .overlay-close:hover,
+    .overlay-close:focus-visible{
+      opacity:.92;
+      transform:scale(1.04);
+      background:rgba(15,23,42,.58);
+      outline:none;
+    }
 
     @media (max-width:1100px){
-      .hero{grid-template-columns:1fr}
-      .stages-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      body{overflow:auto}
+      .shell{width:min(1200px, calc(100vw - 14px));min-height:auto;margin:8px auto 12px}
+      .hero-top,.main-grid{grid-template-columns:1fr}
+      .stage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .status-row{grid-template-columns:1fr}
+      .progress-card{grid-template-columns:100px 1fr}
+      .pet-frame{width:100px;height:100px}
     }
     @media (max-width:640px){
-      body{padding:12px}
-      .stages-grid{grid-template-columns:1fr}
-      .modal-head{left:10px;right:10px;top:10px;padding:10px 12px;border-radius:18px}
-      .modal-head .btn{padding:10px 14px}
-      .modal-title{font-size:22px}
-      .modal-sub{font-size:13px}
-      .detect-pill{left:10px;bottom:12px;font-size:12px;padding:7px 12px}
-      .stage-complete-toast{left:10px;right:10px;bottom:12px;max-width:none}
-      .modal-foot{right:10px;bottom:12px}
-      .modal-foot #modalHint{display:none}
+      .stage-grid{grid-template-columns:1fr}
+      .hero,.map-card,.info-card{padding:14px}
+      .title-wrap h1{font-size:30px}
+      .stage-name{font-size:22px}
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <section class="panel hero">
-      <div class="pet-box">
-        <div class="pet-stage-badge" id="petStageBadge">⭐ Stage 1 Journey Begins</div>
-        <div class="pet-frame" id="petFrame">
-          <div class="pet-placeholder" id="petPlaceholder">🥚</div>
-          <img id="petImage" alt="Current pet evolution" hidden />
-        </div>
-        <div>
-          <div style="font-size:28px;font-weight:900" id="petTitle">A Mystery Egg Awaits</div>
-          <div style="font-size:17px;line-height:1.45;color:#4e5875" id="petText">Complete each stage in order. Your pet will evolve step by step until it becomes King Hullabaloo!</div>
-        </div>
-      </div>
-
-      <div class="hero-copy">
-        <h1>Monster Quest — 8-Stage Pet Journey</h1>
-        <p class="lead">This hub locks the stages in order, remembers progress on the same device, and lets pupils continue their journey the next day.</p>
-        <div class="hero-note">
-          <strong>Important:</strong> Upload this hub under the same <strong>limkimsze-maker.github.io</strong> domain as the 8 stage sites. That lets the hub detect when a stage is truly finished and unlock the next one automatically.
-        </div>
-        <div class="button-row">
-          <button class="btn btn-primary" id="resumeBtn">▶ Resume Journey</button>
-          <button class="btn btn-secondary" id="currentStageBtn">⭐ Play Current Stage</button>
-          <button class="btn btn-danger" id="resetBtn">↺ Reset Device Progress</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel progress-panel">
-      <div class="progress-top">
-        <div>
-          <div class="progress-title">Journey Progress</div>
-          <div class="progress-sub" id="progressText">0 of 8 stages completed</div>
-        </div>
-        <div class="progress-sub" id="resumeText">Next playable stage: Stage 1</div>
-      </div>
-      <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
-      <div class="spark-row" id="sparkRow"></div>
-    </section>
-
-    <section class="panel stages-panel">
-      <div class="section-title">Stage Map</div>
-      <div class="stages-grid" id="stagesGrid"></div>
-    </section>
-
-    <section class="panel footer-note">
-      Progress is saved in this device's browser. A pupil can stop after a stage and continue later on the same device. Later stages stay locked until the earlier stage is completed in order.
-      <div class="credit" style="margin-top:8px">Designed by Lim Kim Sze © 2026</div>
-    </section>
-  </div>
-
-  <div class="modal" id="stageModal" aria-hidden="true">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div class="modal-title-wrap">
-          <div class="modal-title" id="modalTitle">Stage 1</div>
-          <div class="modal-sub" id="modalSub">Play inside this window so progress can be saved automatically.</div>
-        </div>
-        <button class="btn btn-ghost" id="closeModalBtn">✕ Close</button>
-      </div>
-      <div class="iframe-wrap">
-        <div class="detect-pill" id="detectPill">Waiting for stage to load…</div>
-        <iframe id="stageFrame" title="Stage game"></iframe>
-        <div class="stage-complete-toast" id="stageCompleteToast">
-          <div class="toast-title" id="toastTitle">Stage Complete!</div>
-          <div class="toast-text" id="toastText">Saved on this device. You can close this window or continue to the next stage from the map.</div>
-          <div class="button-row" style="margin-top:4px">
-            <button class="btn btn-primary" id="toastNextBtn">▶ Next Stage</button>
-            <button class="btn btn-ghost" id="toastBackBtn">Back to Map</button>
+  <div class="app">
+    <div class="shell">
+      <section class="hero">
+        <div class="hero-top">
+          <div>
+            <div class="title-wrap">
+              <h1>Monster Quest — Stage Map</h1>
+              <p>Finish the stages in order. This page remembers progress on the same device, so pupils can stop and continue the next day. Locked stages cannot be opened early.</p>
+            </div>
+            <div class="hero-actions">
+              <button class="btn primary" id="resumeBtn" type="button">Resume Adventure</button>
+              <button class="btn secondary" id="replayLastBtn" type="button">Replay Latest Stage</button>
+              <button class="btn secondary" id="unlockAllBtn" type="button">Unlock All Stages</button>
+              <button class="btn warn" id="resetBtn" type="button">Reset Progress</button>
+            </div>
+          </div>
+          <div class="hero-side">
+            <div class="status-row">
+              <div class="pill" id="completedPill">Completed: 0 / 8</div>
+              <div class="pill" id="unlockedPill">Unlocked: Stage 1</div>
+              <div class="pill" id="devicePill">Same device save</div>
+            </div>
+            <div class="progress-card">
+              <div class="pet-frame" id="petFrame">
+                <img id="petImg" alt="Current pet form" loading="eager" />
+                <div class="pet-fallback" id="petFallback" hidden>🥚</div>
+              </div>
+              <div class="progress-text">
+                <div class="progress-title" id="petTitle">Egg form</div>
+                <div class="progress-sub" id="petSub">Complete stages to evolve your pet toward King Hullabaloo.</div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
+
+      <div class="main-grid">
+        <section class="card map-card">
+          <div class="section-head">
+            <div class="section-title">🗺️ Stage Journey</div>
+            <div class="section-note" id="mapNote">Start from Stage 1.</div>
+          </div>
+          <div class="stage-grid" id="stageGrid"></div>
+        </section>
+
+        <section class="card info-card">
+          <div class="section-head">
+            <div class="section-title">📌 How it works</div>
+          </div>
+          <div class="info-stack">
+            <div class="mini-card">
+              <div class="mini-title">Progress rules</div>
+              <div class="mini-text">Each stage must be cleared before the next one unlocks. Completed stages stay replayable.</div>
+              <div class="stage-dots" id="journeyDots"></div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-title">Return to map</div>
+              <div class="mini-text">When a stage is completed, this page saves progress, closes the stage, returns to the map, and highlights the newly unlocked stage.</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-title">Controls</div>
+              <div class="tiny-steps">
+                <div>• Use <strong>Resume Adventure</strong> to open the next stage.</div>
+                <div>• Use <strong>Replay Latest Stage</strong> to practise the most recent cleared stage again.</div>
+                <div>• Press <strong>Esc</strong> while a stage is open to return to the map.</div>
+              </div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-title">Final reward</div>
+              <div class="mini-text">Complete all 8 stages to fully evolve your pet into <strong>King Hullabaloo</strong>.</div>
+            </div>
+          </div>
+        </section>
       </div>
-      <div class="modal-foot">
-        <div class="tiny" id="modalHint" style="display:none">Auto-save works when this hub and the stage sites are on the same GitHub Pages domain.</div>
-        <div class="button-row">
-          <button class="btn btn-ghost" id="reloadStageBtn">↻ Reload Stage</button>
-        </div>
-      </div>
+
+      <div class="footer">Designed by Lim Kim Sze © 2026</div>
     </div>
   </div>
 
-  <div class="map-toast" id="mapToast" aria-live="polite">
-    <div class="map-toast-title" id="mapToastTitle">Stage Complete!</div>
-    <div class="map-toast-text" id="mapToastText">The next stage is now unlocked.</div>
+  <div class="toast" id="toast"></div>
+
+  <div class="stage-overlay" id="stageOverlay" aria-hidden="true">
+    <iframe class="stage-frame" id="stageFrame" title="Stage game"></iframe>
+    <button class="overlay-close" id="overlayClose" type="button" aria-label="Close stage">×</button>
   </div>
 
-  <div class="confetti" id="confetti"></div>
-
   <script>
-    const STAGES = [
-      {
-        id: 1,
-        name: 'Stage 1',
-        url: 'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_1/',
-        rewardTitle: 'Mystery Egg',
-        rewardText: 'You found an egg! Keep going and see what hatches next.',
-        fallbackEmoji: '🥚',
-        completionPhrases: ['You found an egg!', 'You finished all 3 questions.']
-      },
-      {
-        id: 2,
-        name: 'Stage 2',
-        url: 'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_2/',
-        rewardTitle: 'Hatching Pet',
-        rewardText: 'The creature is fully out of the shell!',
-        fallbackEmoji: '🐣',
-        completionPhrases: ['The creature is fully out of the shell!', 'Mission complete']
-      },
-      {
-        id: 3,
-        name: 'Stage 3',
-        url: 'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_3/',
-        rewardTitle: 'Hullababoo!',
-        rewardText: 'It grows much larger wings.',
-        fallbackEmoji: '🪽',
-        completionPhrases: ['Your pet reached Stage 3!', 'Hullababoo!']
-      },
-      {
-        id: 4,
-        name: 'Stage 4',
-        url: 'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_4/',
-        rewardTitle: 'Winged Hullababoo!',
-        rewardText: 'It begins flying instead of standing on the ground.',
-        fallbackEmoji: '🕊️',
-        completionPhrases: ['Pet 4 appears!', 'Winged Hullababoo!']
-      },
-      {
-        id: 5,
-        name: 'Stage 5',
-        url: 'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_5/',
-        rewardTitle: 'Super Saiyan Hullababoo!',
-        rewardText: 'A glowing energy beam appears from the star/object it is holding.',
-        fallbackEmoji: '✨',
-        completionPhrases: ['Pet 5 appears!', 'Super Saiyan Hullababoo!']
-      },
-      {
-        id: 6,
-        name: 'Stage 6',
-        url: 'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_6/',
-        rewardTitle: 'Magical Strange Hullababoo!',
-        rewardText: 'It gains outfit details like a scarf and a wand/star accessory.',
-        fallbackEmoji: '🪄',
-        completionPhrases: ['Pet 6 appears!', 'Magical Strange Hullababoo!']
-      },
-      {
-        id: 7,
-        name: 'Stage 7',
-        url: 'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_7/',
-        rewardTitle: 'Prince Hullabaloo!',
-        rewardText: 'It transforms into a more regal form with armour and a staff.',
-        fallbackEmoji: '👑',
-        completionPhrases: ['Prince Hullabaloo!', 'Journey Complete']
-      },
-      {
-        id: 8,
-        name: 'Stage 8',
-        url: 'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_8/',
-        rewardTitle: 'King Hullabaloo!',
-        rewardText: 'Your pet has evolved into King Hullabaloo!',
-        fallbackEmoji: '🏆',
-        completionPhrases: ['King Hullabaloo!', 'Your pet has evolved into King Hullabaloo!']
+    (() => {
+      'use strict';
+
+      const STAGES = [
+        { stage:1, name:'Stage 1', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_1/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_1/1%20pet.png' },
+        { stage:2, name:'Stage 2', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_2/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_2/2%20pet.png' },
+        { stage:3, name:'Stage 3', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_3/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_3/3%20pet.png' },
+        { stage:4, name:'Stage 4', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_4/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_4/4%20pet.png' },
+        { stage:5, name:'Stage 5', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_5/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_5/5%20pet.png' },
+        { stage:6, name:'Stage 6', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_6/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_6/6%20pet.png' },
+        { stage:7, name:'Stage 7', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_7/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_7/7%20pet.png' },
+        { stage:8, name:'Stage 8', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_8/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_8/8%20pet.png' }
+      ];
+
+      const LS_COMPLETE = 'monsterQuest_highestCompleted';
+      const LS_JUST = 'monsterQuest_justUnlocked';
+      const LS_UNLOCK_ALL = 'monsterQuest_unlockAll';
+
+      const stageGrid = document.getElementById('stageGrid');
+      const journeyDots = document.getElementById('journeyDots');
+      const completedPill = document.getElementById('completedPill');
+      const unlockedPill = document.getElementById('unlockedPill');
+      const mapNote = document.getElementById('mapNote');
+      const resumeBtn = document.getElementById('resumeBtn');
+      const replayLastBtn = document.getElementById('replayLastBtn');
+      const unlockAllBtn = document.getElementById('unlockAllBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const progressFill = document.getElementById('progressFill');
+      const petImg = document.getElementById('petImg');
+      const petFallback = document.getElementById('petFallback');
+      const petTitle = document.getElementById('petTitle');
+      const petSub = document.getElementById('petSub');
+      const toast = document.getElementById('toast');
+      const overlay = document.getElementById('stageOverlay');
+      const frame = document.getElementById('stageFrame');
+      const overlayClose = document.getElementById('overlayClose');
+
+      let toastTimer = null;
+
+      function clampCompleted(value){
+        const n = Number(value || 0);
+        if (!Number.isFinite(n)) return 0;
+        return Math.max(0, Math.min(STAGES.length, Math.floor(n)));
       }
-    ];
 
-    const STORAGE_KEY = 'monsterQuestStageHubProgress_v1';
-    const IMAGE_CACHE_KEY = 'monsterQuestStageHubImageCache_v1';
-
-    const els = {
-      petStageBadge: document.getElementById('petStageBadge'),
-      petImage: document.getElementById('petImage'),
-      petPlaceholder: document.getElementById('petPlaceholder'),
-      petTitle: document.getElementById('petTitle'),
-      petText: document.getElementById('petText'),
-      progressText: document.getElementById('progressText'),
-      resumeText: document.getElementById('resumeText'),
-      barFill: document.getElementById('barFill'),
-      sparkRow: document.getElementById('sparkRow'),
-      stagesGrid: document.getElementById('stagesGrid'),
-      resumeBtn: document.getElementById('resumeBtn'),
-      currentStageBtn: document.getElementById('currentStageBtn'),
-      resetBtn: document.getElementById('resetBtn'),
-      modal: document.getElementById('stageModal'),
-      modalTitle: document.getElementById('modalTitle'),
-      modalSub: document.getElementById('modalSub'),
-      stageFrame: document.getElementById('stageFrame'),
-      detectPill: document.getElementById('detectPill'),
-      closeModalBtn: document.getElementById('closeModalBtn'),
-      reloadStageBtn: document.getElementById('reloadStageBtn'),
-      stageCompleteToast: document.getElementById('stageCompleteToast'),
-      toastTitle: document.getElementById('toastTitle'),
-      toastText: document.getElementById('toastText'),
-      toastNextBtn: document.getElementById('toastNextBtn'),
-      toastBackBtn: document.getElementById('toastBackBtn'),
-      confetti: document.getElementById('confetti')
-    };
-
-    let state = loadState();
-    let imageCache = loadImageCache();
-    let activeStageId = null;
-    let pollTimer = null;
-    let stageJustCompletedInModal = false;
-    let spotlightStageId = null;
-
-    function defaultState() {
-      return {
-        completed: Array(STAGES.length).fill(false),
-        lastPlayedStage: 1,
-        updatedAt: Date.now()
-      };
-    }
-
-    function sanitizeState(raw) {
-      const base = defaultState();
-      if (!raw || typeof raw !== 'object') return base;
-      const completed = Array.isArray(raw.completed) ? raw.completed.slice(0, STAGES.length).map(Boolean) : base.completed;
-      while (completed.length < STAGES.length) completed.push(false);
-      let lastPlayedStage = Number.isInteger(raw.lastPlayedStage) ? raw.lastPlayedStage : 1;
-      if (lastPlayedStage < 1) lastPlayedStage = 1;
-      if (lastPlayedStage > STAGES.length) lastPlayedStage = STAGES.length;
-      return {
-        completed,
-        lastPlayedStage,
-        updatedAt: Number(raw.updatedAt) || Date.now()
-      };
-    }
-
-    function loadState() {
-      try {
-        return sanitizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)));
-      } catch {
-        return defaultState();
+      function getCompleted(){
+        return clampCompleted(localStorage.getItem(LS_COMPLETE));
       }
-    }
 
-    function saveState() {
-      state.updatedAt = Date.now();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function loadImageCache() {
-      try {
-        const raw = JSON.parse(localStorage.getItem(IMAGE_CACHE_KEY) || '{}');
-        return raw && typeof raw === 'object' ? raw : {};
-      } catch {
-        return {};
+      function setCompleted(stage){
+        const next = clampCompleted(stage);
+        localStorage.setItem(LS_COMPLETE, String(next));
       }
-    }
 
-    function saveImageCache() {
-      try {
-        const persistable = {};
-        Object.entries(imageCache).forEach(([key, value]) => {
-          if (!value) return;
-          const src = String(value);
-          if (src.startsWith('data:image/')) return;
-          if (src.length > 180000) return;
-          persistable[key] = src;
-        });
-        localStorage.setItem(IMAGE_CACHE_KEY, JSON.stringify(persistable));
-      } catch {
-        // ignore storage quota issues; keep runtime cache alive for this session
+      function getUnlockAll(){
+        return localStorage.getItem(LS_UNLOCK_ALL) === '1';
       }
-    }
 
-    function completedCount() {
-      return state.completed.filter(Boolean).length;
-    }
-
-    function nextUnlockedStage() {
-      for (let i = 0; i < STAGES.length; i++) {
-        if (!state.completed[i]) return i + 1;
+      function setUnlockAll(value){
+        if (value) localStorage.setItem(LS_UNLOCK_ALL, '1');
+        else localStorage.removeItem(LS_UNLOCK_ALL);
       }
-      return STAGES.length;
-    }
 
-    function isStageUnlocked(id) {
-      if (id === 1) return true;
-      return state.completed[id - 2] === true;
-    }
-
-    function allStagesDone() {
-      return completedCount() === STAGES.length;
-    }
-
-    function latestCompletedStageId() {
-      for (let i = STAGES.length; i >= 1; i--) {
-        if (state.completed[i - 1]) return i;
+      function getUnlockedStage(){
+        if (getUnlockAll()) return STAGES.length;
+        return Math.min(getCompleted() + 1, STAGES.length);
       }
-      return 0;
-    }
 
-    function render() {
-      renderHero();
-      renderProgress();
-      renderStages();
-      els.resumeBtn.textContent = allStagesDone() ? '🏆 Replay Final Stage' : '▶ Resume Journey';
-      els.currentStageBtn.textContent = allStagesDone() ? '🏆 Play Stage 8' : `⭐ Play ${STAGES[nextUnlockedStage() - 1].name}`;
-    }
-
-    function renderHero() {
-      const latest = latestCompletedStageId();
-      const stageForHero = latest > 0 ? STAGES[latest - 1] : STAGES[0];
-      const badgeStage = allStagesDone() ? 'Journey Complete' : `Stage ${Math.max(1, nextUnlockedStage())} Journey`;
-      els.petStageBadge.textContent = `⭐ ${badgeStage}`;
-      els.petTitle.textContent = latest > 0 ? stageForHero.rewardTitle : 'A Mystery Egg Awaits';
-      els.petText.textContent = latest > 0 ? stageForHero.rewardText : 'Complete each stage in order. Your pet will evolve step by step until it becomes King Hullabaloo!';
-
-      const image = imageCache[String(stageForHero.id)];
-      if (image) {
-        els.petImage.src = image;
-        els.petImage.hidden = false;
-        els.petPlaceholder.hidden = true;
-      } else {
-        els.petImage.hidden = true;
-        els.petPlaceholder.hidden = false;
-        els.petPlaceholder.textContent = latest > 0 ? stageForHero.fallbackEmoji : '🥚';
+      function getLatestPlayableStage(){
+        const completed = getCompleted();
+        if (completed >= STAGES.length) return STAGES.length;
+        return Math.max(1, completed + 1);
       }
-    }
 
-    function renderProgress() {
-      const done = completedCount();
-      els.progressText.textContent = `${done} of 8 stages completed`;
-      els.resumeText.textContent = allStagesDone() ? 'All stages completed — King Hullabaloo achieved!' : `Next playable stage: Stage ${nextUnlockedStage()}`;
-      els.barFill.style.width = `${(done / STAGES.length) * 100}%`;
-
-      els.sparkRow.innerHTML = '';
-      STAGES.forEach(stage => {
-        const spark = document.createElement('div');
-        spark.className = 'spark';
-        spark.textContent = stage.id;
-        if (state.completed[stage.id - 1]) spark.classList.add('done');
-        else if (stage.id === nextUnlockedStage()) spark.classList.add('current');
-        els.sparkRow.appendChild(spark);
-      });
-    }
-
-    function renderStages() {
-      els.stagesGrid.innerHTML = '';
-      STAGES.forEach(stage => {
-        const unlocked = isStageUnlocked(stage.id);
-        const done = state.completed[stage.id - 1];
-        const current = !done && stage.id === nextUnlockedStage();
-
-        const card = document.createElement('div');
-        card.className = 'stage-card';
-        card.dataset.stageCard = String(stage.id);
-        if (!unlocked) card.classList.add('locked');
-        if (done) card.classList.add('done');
-        if (current) card.classList.add('current');
-        if (spotlightStageId === stage.id) card.classList.add('spotlight');
-
-        const image = imageCache[String(stage.id)];
-        const statusText = done ? 'Completed' : unlocked ? 'Unlocked' : 'Locked';
-        const statusClass = done ? 'status-done' : unlocked ? 'status-current' : 'status-locked';
-
-        card.innerHTML = `
-          <div class="stage-top">
-            <div class="stage-name">${stage.name}</div>
-            <div class="stage-status ${statusClass}">${statusText}</div>
-          </div>
-          <div class="thumb">${image ? `<img src="${escapeHtml(image)}" alt="${stage.name} reward">` : `<div class="emoji">${stage.fallbackEmoji}</div>`}</div>
-          <div class="stage-desc">${done ? stage.rewardText : unlocked ? 'Finish this stage to unlock the next one.' : `Complete Stage ${stage.id - 1} first.`}</div>
-          <div class="button-row">
-            <button class="btn ${done || current ? 'btn-primary' : 'btn-ghost'}" ${unlocked ? '' : 'disabled'} data-stage-play="${stage.id}">${done ? 'Replay' : 'Play'}</button>
-          </div>
-          <div class="tiny">${done ? 'Saved on this device.' : unlocked ? 'Ready to play.' : 'Locked in order.'}</div>
-        `;
-        els.stagesGrid.appendChild(card);
-      });
-
-      els.stagesGrid.querySelectorAll('[data-stage-play]').forEach(btn => {
-        btn.addEventListener('click', () => openStage(Number(btn.dataset.stagePlay)));
-      });
-    }
-
-    function openStage(stageId) {
-      if (!isStageUnlocked(stageId)) return;
-      const stage = STAGES[stageId - 1];
-      activeStageId = stageId;
-      state.lastPlayedStage = stageId;
-      saveState();
-      render();
-
-      stageJustCompletedInModal = false;
-      if (els.mapToast) els.mapToast.classList.remove('show');
-      els.modalTitle.textContent = `${stage.name}`;
-      els.modalSub.textContent = `${stage.rewardTitle} is waiting at the end of this stage.`;
-      els.detectPill.textContent = 'Loading stage…';
-      els.stageCompleteToast.classList.remove('show');
-      els.stageFrame.src = stage.url;
-      els.modal.classList.add('show');
-      els.modal.setAttribute('aria-hidden', 'false');
-      startPolling();
-    }
-
-    function closeStageModal() {
-      stopPolling();
-      const completedStageId = stageJustCompletedInModal ? activeStageId : 0;
-      const spotlightId = completedStageId
-        ? (completedStageId < STAGES.length ? completedStageId + 1 : completedStageId)
-        : spotlightStageId;
-      activeStageId = null;
-      els.modal.classList.remove('show');
-      els.modal.setAttribute('aria-hidden', 'true');
-      els.stageFrame.src = 'about:blank';
-      els.stageCompleteToast.classList.remove('show');
-      render();
-      if (completedStageId) {
-        showMapToast(completedStageId, spotlightId || completedStageId);
+      function getJustUnlocked(){
+        const raw = Number(localStorage.getItem(LS_JUST) || 0);
+        if (!Number.isFinite(raw)) return 0;
+        return Math.max(0, Math.min(STAGES.length, Math.floor(raw)));
       }
-      stageJustCompletedInModal = false;
-    }
 
-    function startPolling() {
-      stopPolling();
-      pollTimer = setInterval(checkActiveStageCompletion, 1200);
-      setTimeout(checkActiveStageCompletion, 900);
-    }
-
-    function stopPolling() {
-      if (pollTimer) clearInterval(pollTimer);
-      pollTimer = null;
-    }
-
-    function checkActiveStageCompletion() {
-      if (!activeStageId) return;
-      const frame = els.stageFrame;
-      const stage = STAGES[activeStageId - 1];
-      try {
-        const doc = frame.contentDocument || frame.contentWindow.document;
-        if (!doc || !doc.body) {
-          els.detectPill.textContent = 'Stage loading…';
-          return;
-        }
-
-        cacheStageImageFromDoc(stage.id, doc);
-
-        if (visibleCompletionFound(doc, stage.completionPhrases)) {
-          els.detectPill.textContent = 'Reward unlocked ✓';
-          if (!state.completed[stage.id - 1]) {
-            markStageComplete(stage.id);
-          } else {
-            showCompletionToast(stage.id, false);
-          }
+      function setJustUnlocked(stage){
+        if (stage >= 1 && stage <= STAGES.length) {
+          localStorage.setItem(LS_JUST, String(stage));
         } else {
-          els.detectPill.textContent = 'Playing… progress will save after stage completion';
+          localStorage.removeItem(LS_JUST);
         }
-      } catch (err) {
-        els.detectPill.textContent = 'Auto-detection needs the same GitHub Pages domain';
       }
-    }
 
-    function cacheStageImageFromDoc(stageId, doc) {
-      const key = String(stageId);
-      const existing = imageCache[key];
-      const existingIsGood = typeof existing === 'string' && existing.length > 0;
-
-      const imgs = Array.from(doc.querySelectorAll('img')).filter(el => !!el.src);
-      if (!imgs.length) return;
-
-      const scored = imgs
-        .map(el => {
-          const src = String(el.src || '');
-          const alt = String(el.alt || '').toLowerCase();
-          const score =
-            (/(pet|hullabaloo|reward|king|prince)/i.test(src) ? 5000 : 0) +
-            (/(pet|hullabaloo|reward|king|prince)/i.test(alt) ? 3000 : 0) +
-            ((el.naturalWidth || el.width || 0) * (el.naturalHeight || el.height || 0)) +
-            (src.startsWith('data:image/') ? 1200 : 0);
-          return { el, src, score };
-        })
-        .sort((a, b) => b.score - a.score);
-
-      const best = scored[0];
-      if (!best || !best.src) return;
-
-      if (existingIsGood && !existing.startsWith('data:image/')) return;
-
-      imageCache[key] = best.src;
-      saveImageCache();
-      render();
-    }
-
-    function visibleCompletionFound(doc, phrases) {
-      const all = Array.from(doc.body.querySelectorAll('*'));
-      for (const el of all) {
-        if (!isElementVisible(el, doc.defaultView)) continue;
-        const text = normalizeText(el.innerText || el.textContent || '');
-        if (!text) continue;
-        if (phrases.some(p => text.includes(p))) return true;
+      function clearJustUnlocked(){
+        localStorage.removeItem(LS_JUST);
       }
-      return false;
-    }
 
-    function isElementVisible(el, view) {
-      if (!(el instanceof Element)) return false;
-      const style = view.getComputedStyle(el);
-      if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) return false;
-      const rect = el.getBoundingClientRect();
-      return rect.width > 0 && rect.height > 0;
-    }
+      function showToast(message){
+        if (!message) return;
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2600);
+      }
 
-    function normalizeText(s) {
-      return String(s).replace(/\s+/g, ' ').trim();
-    }
+      function currentPetInfo(completed){
+        const stage = Math.max(1, Math.min(STAGES.length, completed || 1));
+        const defaultInfo = {
+          img: STAGES[stage - 1].img,
+          title: completed >= 8 ? 'King Hullabaloo' : completed >= 7 ? 'Prince Hullabaloo' : completed >= 3 ? `Stage ${completed} form` : 'Egg form',
+          sub: completed >= 8
+            ? 'Your full adventure is complete. King Hullabaloo is unlocked.'
+            : completed > 0
+              ? `You have cleared ${completed} stage${completed === 1 ? '' : 's'}. Keep going to unlock the next evolution.`
+              : 'No stage cleared yet. Start with Stage 1 to begin the evolution journey.'
+        };
+        if (completed === 0) {
+          defaultInfo.img = STAGES[0].img;
+        }
+        return defaultInfo;
+      }
 
-    function markStageComplete(stageId) {
-      state.completed[stageId - 1] = true;
-      if (stageId < STAGES.length) state.lastPlayedStage = stageId + 1;
-      else state.lastPlayedStage = STAGES.length;
-      saveState();
-      stageJustCompletedInModal = true;
-      const unlockedStageId = stageId < STAGES.length ? stageId + 1 : stageId;
-      spotlightStageId = unlockedStageId;
-      celebrate();
-      render();
-      showCompletionToast(stageId, true);
-    }
+      function renderDots(completed){
+        journeyDots.innerHTML = '';
+        for (let i = 1; i <= STAGES.length; i++) {
+          const dot = document.createElement('div');
+          dot.className = 'dot';
+          if (i <= completed) dot.classList.add('done');
+          else if (i === Math.min(completed + 1, STAGES.length)) dot.classList.add('on');
+          journeyDots.appendChild(dot);
+        }
+      }
 
-    function showCompletionToast(stageId, justUnlocked) {
-      const stage = STAGES[stageId - 1];
-      const nextId = Math.min(STAGES.length, stageId + 1);
-      const hasNext = stageId < STAGES.length;
-      els.toastTitle.textContent = hasNext ? `${stage.name} Complete!` : 'King Hullabaloo Unlocked!';
-      els.toastText.textContent = hasNext
-        ? `Progress saved on this device. Admire the reward picture, then click Back to Stage Map when you are ready. ${STAGES[nextId - 1].name} is unlocked.`
-        : 'Progress saved on this device. Admire King Hullabaloo, then click Back to Stage Map when you are ready.';
-      els.toastNextBtn.hidden = true;
-      els.toastNextBtn.dataset.nextStage = '';
-      els.toastBackBtn.textContent = 'Back to Stage Map';
-      els.stageCompleteToast.classList.add('show');
-    }
+      function stageStatus(stage, completed){
+        const unlockAll = getUnlockAll();
+        const unlocked = getUnlockedStage();
+        if (stage <= completed) return 'completed';
+        if (unlockAll || stage === unlocked) return 'unlocked';
+        return 'locked';
+      }
 
-    function showMapToast(stageId, spotlightId) {
-      const hasNext = stageId < STAGES.length;
-      els.mapToastTitle.textContent = hasNext ? `${STAGES[stageId - 1].name} Complete!` : 'King Hullabaloo Unlocked!';
-      els.mapToastText.textContent = hasNext
-        ? `${STAGES[spotlightId - 1].name} is now unlocked. Progress has been saved on this device.`
-        : 'You completed all 8 stages. Progress has been saved on this device.';
+      function stageStatusText(stage, completed){
+        const status = stageStatus(stage, completed);
+        if (status === 'completed') return 'Completed. You can replay this stage.';
+        if (status === 'unlocked') {
+          return getUnlockAll()
+            ? 'Unlocked by button. You can open this stage any time.'
+            : 'Unlocked. This is the next stage to play.';
+        }
+        return `Locked. Clear Stage ${stage - 1} first.`;
+      }
 
-      els.mapToast.classList.add('show');
+      function petImageFallback(){
+        petImg.hidden = true;
+        petFallback.hidden = false;
+      }
 
-      requestAnimationFrame(() => {
-        const card = document.querySelector(`[data-stage-card="${spotlightId}"]`);
-        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      function render(){
+        const completed = getCompleted();
+        const unlocked = getUnlockedStage();
+        const justUnlocked = getJustUnlocked();
+        const unlockAll = getUnlockAll();
+        const pet = currentPetInfo(completed);
+
+        completedPill.textContent = `Completed: ${completed} / ${STAGES.length}`;
+        unlockedPill.textContent = completed >= STAGES.length
+          ? 'Unlocked: All stages cleared'
+          : unlockAll
+            ? 'Unlocked: All stages'
+            : `Unlocked: Stage ${unlocked}`;
+        mapNote.textContent = completed >= STAGES.length
+          ? 'All stages cleared. Replay any stage below.'
+          : unlockAll
+            ? 'All stages are unlocked on this device.'
+            : completed === 0
+              ? 'Start from Stage 1.'
+              : `Stage ${unlocked} is ready.`;
+
+        progressFill.style.width = `${(completed / STAGES.length) * 100}%`;
+        petTitle.textContent = pet.title;
+        petSub.textContent = pet.sub;
+        petImg.hidden = false;
+        petFallback.hidden = true;
+        petImg.src = pet.img;
+
+        resumeBtn.textContent = completed >= STAGES.length ? 'Replay Stage 8' : `Resume at Stage ${Math.max(1, completed + 1)}`;
+        replayLastBtn.disabled = completed === 0;
+        replayLastBtn.textContent = completed === 0 ? 'Replay Latest Stage' : `Replay Stage ${completed}`;
+        unlockAllBtn.textContent = unlockAll ? 'All Stages Unlocked' : 'Unlock All Stages';
+
+        stageGrid.innerHTML = '';
+        STAGES.forEach((item) => {
+          const status = stageStatus(item.stage, completed);
+          const card = document.createElement('div');
+          card.className = `stage-card ${status}`;
+          if (justUnlocked === item.stage && status === 'unlocked') {
+            card.classList.add('just-unlocked');
+          }
+          card.dataset.stage = String(item.stage);
+
+          const badgeText = status === 'completed' ? '★' : status === 'locked' ? '🔒' : item.stage;
+          const buttonLabel = status === 'completed' ? 'Replay Stage' : status === 'unlocked' ? 'Play Stage' : 'Locked';
+          const disabled = status === 'locked' ? 'disabled' : '';
+
+          card.innerHTML = `
+            <div class="stage-badge">${badgeText}</div>
+            <div class="stage-name">${item.name}</div>
+            <div class="stage-status">${stageStatusText(item.stage, completed)}</div>
+            <button class="stage-btn" type="button" ${disabled}>${buttonLabel}</button>
+          `;
+
+          const btn = card.querySelector('.stage-btn');
+          if (status !== 'locked') {
+            btn.addEventListener('click', () => openStage(item.stage));
+            card.addEventListener('dblclick', () => openStage(item.stage));
+          }
+          stageGrid.appendChild(card);
+        });
+
+        renderDots(completed);
+
+        if (justUnlocked >= 1 && justUnlocked <= STAGES.length) {
+          const el = stageGrid.querySelector(`[data-stage="${justUnlocked}"]`);
+          if (el) {
+            requestAnimationFrame(() => {
+              el.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'nearest' });
+            });
+          }
+        }
+      }
+
+      function openStage(stage){
+        const completed = getCompleted();
+        const unlocked = getUnlockedStage();
+        if (stage > unlocked && stage > completed) return;
+        const found = STAGES.find(s => s.stage === stage);
+        if (!found) return;
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden', 'false');
+        frame.src = found.url;
+      }
+
+      function closeStage(){
+        overlay.classList.remove('open');
+        overlay.setAttribute('aria-hidden', 'true');
+        frame.src = 'about:blank';
+      }
+
+      function markStageComplete(stage, announce = true){
+        const completed = getCompleted();
+        const nextCompleted = Math.max(completed, clampCompleted(stage));
+        setCompleted(nextCompleted);
+        if (nextCompleted < STAGES.length) setJustUnlocked(nextCompleted + 1);
+        else clearJustUnlocked();
+        render();
+        if (announce) {
+          if (nextCompleted >= STAGES.length) {
+            showToast('Adventure complete. King Hullabaloo is unlocked.');
+          } else {
+            showToast(`Stage ${nextCompleted + 1} unlocked. Progress saved on this device.`);
+          }
+        }
+      }
+
+      function handleCompletedQuery(){
+        const params = new URLSearchParams(window.location.search);
+        const completedParam = params.get('completed');
+        if (!completedParam) return;
+        const stage = clampCompleted(completedParam);
+        if (stage >= 1) {
+          markStageComplete(stage, true);
+        }
+        params.delete('completed');
+        const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}${window.location.hash || ''}`;
+        history.replaceState({}, '', clean);
+      }
+
+      resumeBtn.addEventListener('click', () => {
+        openStage(getLatestPlayableStage());
       });
 
-      clearTimeout(showMapToast._hideTimer);
-      clearTimeout(showMapToast._spotlightTimer);
-      showMapToast._hideTimer = setTimeout(() => {
-        els.mapToast.classList.remove('show');
-      }, 5200);
-      showMapToast._spotlightTimer = setTimeout(() => {
-        spotlightStageId = null;
+      replayLastBtn.addEventListener('click', () => {
+        const completed = getCompleted();
+        if (completed >= 1) openStage(completed);
+      });
+
+      unlockAllBtn.addEventListener('click', () => {
+        const ok = window.confirm('Unlock all 8 stages on this device? Journey progress will stay as it is.');
+        if (!ok) return;
+        setUnlockAll(true);
+        clearJustUnlocked();
         render();
-      }, 5200);
-    }
+        showToast('All stages are now unlocked on this device.');
+      });
 
-    function celebrate() {
-      const colors = ['#ffd65b','#89c7ff','#ff7aa8','#9a7cff','#6fe2a5'];
-      els.confetti.innerHTML = '';
-      for (let i = 0; i < 42; i++) {
-        const piece = document.createElement('div');
-        piece.className = 'piece';
-        piece.style.left = `${Math.random() * 100}%`;
-        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-        piece.style.animationDelay = `${Math.random() * .3}s`;
-        piece.style.transform = `translateY(-10vh) rotate(${Math.random()*360}deg)`;
-        els.confetti.appendChild(piece);
-      }
-      setTimeout(() => { els.confetti.innerHTML = ''; }, 2600);
-    }
+      resetBtn.addEventListener('click', () => {
+        const ok = window.confirm('Clear all saved stage progress on this device?');
+        if (!ok) return;
+        localStorage.removeItem(LS_COMPLETE);
+        localStorage.removeItem(LS_JUST);
+        localStorage.removeItem(LS_UNLOCK_ALL);
+        render();
+        showToast('Progress cleared on this device.');
+      });
 
-    function stageExtractionOrder() {
-      const order = [];
-      const latest = latestCompletedStageId();
-      const next = nextUnlockedStage();
-      if (latest) order.push(latest);
-      if (next) order.push(next);
-      STAGES.forEach(stage => order.push(stage.id));
-      return [...new Set(order)]
-        .map(id => STAGES.find(stage => stage.id === id))
-        .filter(Boolean);
-    }
+      overlayClose.addEventListener('click', closeStage);
 
-    function extractStageImagesProgressively(index = 0, orderedStages = stageExtractionOrder()) {
-      if (index >= orderedStages.length) return;
-      const stage = orderedStages[index];
-      if (imageCache[String(stage.id)]) {
-        extractStageImagesProgressively(index + 1, orderedStages);
-        return;
-      }
-
-      const frame = document.createElement('iframe');
-      frame.style.position = 'absolute';
-      frame.style.width = '1px';
-      frame.style.height = '1px';
-      frame.style.left = '-9999px';
-      frame.style.top = '0';
-      frame.style.opacity = '0';
-      frame.src = stage.url;
-      document.body.appendChild(frame);
-
-      let cleaned = false;
-      const clean = () => {
-        if (cleaned) return;
-        cleaned = true;
-        frame.remove();
-        setTimeout(() => extractStageImagesProgressively(index + 1, orderedStages), 180);
-      };
-
-      frame.onload = () => {
-        try {
-          const doc = frame.contentDocument || frame.contentWindow.document;
-          cacheStageImageFromDoc(stage.id, doc);
-        } catch (err) {
-          // ignore; likely being previewed from a different origin before deployment
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('open')) {
+          closeStage();
         }
-        clean();
-      };
+      });
 
-      setTimeout(clean, 5000);
-    }
+      window.addEventListener('message', (event) => {
+        const data = event.data || {};
+        if (data.type !== 'monster-quest-stage-complete') return;
+        const stage = clampCompleted(data.stage);
+        if (stage < 1) return;
+        markStageComplete(stage, true);
+        closeStage();
+      });
 
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
+      petImg.addEventListener('error', petImageFallback);
 
-    els.resumeBtn.addEventListener('click', () => {
-      openStage(allStagesDone() ? 8 : nextUnlockedStage());
-    });
-
-    els.currentStageBtn.addEventListener('click', () => {
-      openStage(allStagesDone() ? 8 : nextUnlockedStage());
-    });
-
-    els.resetBtn.addEventListener('click', () => {
-      const ok = window.confirm('Reset all saved device progress for this 8-stage journey?');
-      if (!ok) return;
-      state = defaultState();
-      saveState();
+      handleCompletedQuery();
       render();
-    });
-
-    els.closeModalBtn.addEventListener('click', closeStageModal);
-    els.toastBackBtn.addEventListener('click', closeStageModal);
-    els.reloadStageBtn.addEventListener('click', () => {
-      if (!activeStageId) return;
-      els.stageFrame.src = STAGES[activeStageId - 1].url;
-      els.detectPill.textContent = 'Reloading stage…';
-      els.stageCompleteToast.classList.remove('show');
-    });
-    els.toastNextBtn.addEventListener('click', () => {
-      const next = Number(els.toastNextBtn.dataset.nextStage || 0);
-      if (!next) return;
-      openStage(next);
-    });
-
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && els.modal.classList.contains('show')) closeStageModal();
-    });
-
-    render();
-    extractStageImagesProgressively();
+    })();
   </script>
 </body>
 </html>
