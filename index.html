@@ -68,6 +68,11 @@
     .stage-card.locked{background:linear-gradient(180deg,#f7f7fb,#eef1f5);opacity:.74}
     .stage-card.current{border-color:#9cccff;box-shadow:0 10px 24px rgba(96,140,255,.18)}
     .stage-card.done{border-color:#ffd55d;box-shadow:0 10px 24px rgba(246,183,41,.18)}
+    .stage-card.spotlight{border-color:#ff9f1a;box-shadow:0 0 0 5px rgba(255,190,92,.35),0 18px 38px rgba(255,159,26,.26);animation:stagePulse 1.15s ease-in-out infinite}
+    @keyframes stagePulse{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-4px)}
+    }
     .stage-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
     .stage-name{font-size:24px;font-weight:900}
     .stage-status{padding:6px 10px;border-radius:999px;font-size:14px;font-weight:900}
@@ -85,22 +90,18 @@
     .modal{position:fixed;inset:0;background:rgba(20,26,52,.42);display:none;align-items:center;justify-content:center;padding:0;z-index:9999}
     .modal.show{display:flex}
     .modal-card{position:relative;width:100vw;height:100vh;background:white;border-radius:0;box-shadow:none;overflow:hidden}
+    .modal-head{position:absolute;left:18px;right:18px;top:16px;z-index:3;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 14px;border:2px solid #eef2ff;border-radius:22px;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);box-shadow:0 14px 34px rgba(16,24,40,.14)}
+    .modal-title-wrap{display:grid;gap:4px}
+    .modal-title{font-size:28px;font-weight:900}
+    .modal-sub{font-size:15px;color:var(--soft)}
     .iframe-wrap{position:absolute;inset:0;background:#edf3ff}
     iframe{position:absolute;inset:0;width:100%;height:100%;border:none;background:white}
-    .stage-meta{display:none}
-    .corner-hotspot{position:absolute;top:0;right:0;width:18px;height:18px;z-index:5}
-    .corner-tools{position:absolute;top:-64px;right:8px;z-index:6;display:flex;gap:8px;opacity:0;pointer-events:none;transition:top .18s ease,opacity .18s ease}
-    .corner-hotspot:hover + .corner-tools,
-    .corner-tools:hover,
-    .corner-tools:focus-within,
-    .corner-tools.show{top:8px;opacity:1;pointer-events:auto}
-    .tool-btn{width:42px;height:42px;padding:0;display:grid;place-items:center;border:none;border-radius:999px;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);box-shadow:0 10px 24px rgba(16,24,40,.18);font-size:20px;font-weight:900;cursor:pointer}
-    .tool-btn:hover{transform:translateY(-1px)}
-    .tool-btn:active{transform:translateY(0)}
-    .stage-complete-toast{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:min(92vw,430px);background:#ffffff;border:3px solid #ffd55d;border-radius:20px;padding:14px 16px;box-shadow:0 16px 40px rgba(20,26,52,.24);display:none;gap:8px;z-index:4}
+    .detect-pill{position:absolute;left:18px;bottom:22px;background:rgba(255,255,255,.96);border:2px solid #e6ebff;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:900;box-shadow:0 10px 24px rgba(46,67,139,.12);z-index:2}
+    .stage-complete-toast{position:absolute;right:18px;bottom:22px;max-width:360px;background:#ffffff;border:3px solid #ffd55d;border-radius:20px;padding:14px 16px;box-shadow:0 16px 40px rgba(20,26,52,.24);display:none;gap:8px;z-index:2}
     .stage-complete-toast.show{display:grid}
     .toast-title{font-size:22px;font-weight:900;color:#8d5c00}
     .toast-text{font-size:15px;line-height:1.4;color:#4d5672}
+    .modal-foot{position:absolute;right:18px;bottom:18px;z-index:2;display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap;padding:0;background:transparent;border:none}
 
     .confetti{
       position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10000;
@@ -113,6 +114,15 @@
 
     .credit{font-weight:700}
 
+    .map-toast{
+      position:fixed;left:50%;top:18px;transform:translateX(-50%);
+      width:min(92vw,620px);background:#fffef8;border:3px solid #ffd55d;border-radius:22px;
+      padding:14px 18px;box-shadow:0 16px 40px rgba(20,26,52,.24);z-index:10001;display:none
+    }
+    .map-toast.show{display:block}
+    .map-toast-title{font-size:24px;font-weight:900;color:#9a6400}
+    .map-toast-text{font-size:16px;line-height:1.45;color:#4d5672;margin-top:4px}
+
     @media (max-width:1100px){
       .hero{grid-template-columns:1fr}
       .stages-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -120,9 +130,14 @@
     @media (max-width:640px){
       body{padding:12px}
       .stages-grid{grid-template-columns:1fr}
-      .corner-tools{right:6px}
-      .tool-btn{width:40px;height:40px;font-size:18px}
-      .stage-complete-toast{width:min(94vw,420px);bottom:12px}
+      .modal-head{left:10px;right:10px;top:10px;padding:10px 12px;border-radius:18px}
+      .modal-head .btn{padding:10px 14px}
+      .modal-title{font-size:22px}
+      .modal-sub{font-size:13px}
+      .detect-pill{left:10px;bottom:12px;font-size:12px;padding:7px 12px}
+      .stage-complete-toast{left:10px;right:10px;bottom:12px;max-width:none}
+      .modal-foot{right:10px;bottom:12px}
+      .modal-foot #modalHint{display:none}
     }
   </style>
 </head>
@@ -180,17 +195,15 @@
 
   <div class="modal" id="stageModal" aria-hidden="true">
     <div class="modal-card">
-      <div class="corner-hotspot" id="cornerHotspot" title="Show stage controls"></div>
-      <div class="corner-tools" id="cornerTools">
-        <button class="tool-btn" id="reloadStageBtn" aria-label="Reload stage" title="Reload stage">↻</button>
-        <button class="tool-btn" id="closeModalBtn" aria-label="Close stage" title="Close stage">✕</button>
+      <div class="modal-head">
+        <div class="modal-title-wrap">
+          <div class="modal-title" id="modalTitle">Stage 1</div>
+          <div class="modal-sub" id="modalSub">Play inside this window so progress can be saved automatically.</div>
+        </div>
+        <button class="btn btn-ghost" id="closeModalBtn">✕ Close</button>
       </div>
       <div class="iframe-wrap">
-        <div class="stage-meta" aria-hidden="true">
-          <div id="modalTitle">Stage 1</div>
-          <div id="modalSub">Play inside this window so progress can be saved automatically.</div>
-          <div id="detectPill">Waiting for stage to load…</div>
-        </div>
+        <div class="detect-pill" id="detectPill">Waiting for stage to load…</div>
         <iframe id="stageFrame" title="Stage game"></iframe>
         <div class="stage-complete-toast" id="stageCompleteToast">
           <div class="toast-title" id="toastTitle">Stage Complete!</div>
@@ -201,7 +214,18 @@
           </div>
         </div>
       </div>
+      <div class="modal-foot">
+        <div class="tiny" id="modalHint" style="display:none">Auto-save works when this hub and the stage sites are on the same GitHub Pages domain.</div>
+        <div class="button-row">
+          <button class="btn btn-ghost" id="reloadStageBtn">↻ Reload Stage</button>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <div class="map-toast" id="mapToast" aria-live="polite">
+    <div class="map-toast-title" id="mapToastTitle">Stage Complete!</div>
+    <div class="map-toast-text" id="mapToastText">The next stage is now unlocked.</div>
   </div>
 
   <div class="confetti" id="confetti"></div>
@@ -311,9 +335,7 @@
       toastText: document.getElementById('toastText'),
       toastNextBtn: document.getElementById('toastNextBtn'),
       toastBackBtn: document.getElementById('toastBackBtn'),
-      confetti: document.getElementById('confetti'),
-      cornerHotspot: document.getElementById('cornerHotspot'),
-      cornerTools: document.getElementById('cornerTools')
+      confetti: document.getElementById('confetti')
     };
 
     let state = loadState();
@@ -321,6 +343,7 @@
     let activeStageId = null;
     let pollTimer = null;
     let stageJustCompletedInModal = false;
+    let spotlightStageId = null;
 
     function defaultState() {
       return {
@@ -452,9 +475,11 @@
 
         const card = document.createElement('div');
         card.className = 'stage-card';
+        card.dataset.stageCard = String(stage.id);
         if (!unlocked) card.classList.add('locked');
         if (done) card.classList.add('done');
         if (current) card.classList.add('current');
+        if (spotlightStageId === stage.id) card.classList.add('spotlight');
 
         const image = imageCache[String(stage.id)];
         const statusText = done ? 'Completed' : unlocked ? 'Unlocked' : 'Locked';
@@ -489,6 +514,7 @@
       render();
 
       stageJustCompletedInModal = false;
+      if (els.mapToast) els.mapToast.classList.remove('show');
       els.modalTitle.textContent = `${stage.name}`;
       els.modalSub.textContent = `${stage.rewardTitle} is waiting at the end of this stage.`;
       els.detectPill.textContent = 'Loading stage…';
@@ -496,7 +522,6 @@
       els.stageFrame.src = stage.url;
       els.modal.classList.add('show');
       els.modal.setAttribute('aria-hidden', 'false');
-      showCornerToolsBriefly();
       startPolling();
     }
 
@@ -507,7 +532,6 @@
       els.modal.setAttribute('aria-hidden', 'true');
       els.stageFrame.src = 'about:blank';
       els.stageCompleteToast.classList.remove('show');
-      if (els.cornerTools) els.cornerTools.classList.remove('show');
       render();
     }
 
@@ -590,9 +614,14 @@
       else state.lastPlayedStage = STAGES.length;
       saveState();
       stageJustCompletedInModal = true;
+      const unlockedStageId = stageId < STAGES.length ? stageId + 1 : stageId;
+      spotlightStageId = unlockedStageId;
       celebrate();
       render();
-      showCompletionToast(stageId, true);
+      setTimeout(() => {
+        closeStageModal();
+        showMapToast(stageId, unlockedStageId);
+      }, 950);
     }
 
     function showCompletionToast(stageId, justUnlocked) {
@@ -606,6 +635,31 @@
       els.toastNextBtn.hidden = !hasNext;
       els.toastNextBtn.dataset.nextStage = hasNext ? String(nextId) : '';
       els.stageCompleteToast.classList.add('show');
+    }
+
+    function showMapToast(stageId, spotlightId) {
+      const hasNext = stageId < STAGES.length;
+      els.mapToastTitle.textContent = hasNext ? `${STAGES[stageId - 1].name} Complete!` : 'King Hullabaloo Unlocked!';
+      els.mapToastText.textContent = hasNext
+        ? `${STAGES[spotlightId - 1].name} is now unlocked. Progress has been saved on this device.`
+        : 'You completed all 8 stages. Progress has been saved on this device.';
+
+      els.mapToast.classList.add('show');
+
+      requestAnimationFrame(() => {
+        const card = document.querySelector(`[data-stage-card="${spotlightId}"]`);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+
+      clearTimeout(showMapToast._hideTimer);
+      clearTimeout(showMapToast._spotlightTimer);
+      showMapToast._hideTimer = setTimeout(() => {
+        els.mapToast.classList.remove('show');
+      }, 5200);
+      showMapToast._spotlightTimer = setTimeout(() => {
+        spotlightStageId = null;
+        render();
+      }, 5200);
     }
 
     function celebrate() {
@@ -671,16 +725,6 @@
         .replace(/'/g, '&#39;');
     }
 
-
-    function showCornerToolsBriefly() {
-      if (!els.cornerTools) return;
-      els.cornerTools.classList.add('show');
-      clearTimeout(showCornerToolsBriefly._t);
-      showCornerToolsBriefly._t = setTimeout(() => {
-        els.cornerTools.classList.remove('show');
-      }, 1800);
-    }
-
     els.resumeBtn.addEventListener('click', () => {
       openStage(allStagesDone() ? 8 : nextUnlockedStage());
     });
@@ -710,12 +754,6 @@
       if (!next) return;
       openStage(next);
     });
-
-    if (els.cornerHotspot) {
-      els.cornerHotspot.addEventListener('click', () => {
-        els.cornerTools.classList.toggle('show');
-      });
-    }
 
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && els.modal.classList.contains('show')) closeStageModal();
