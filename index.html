@@ -36,10 +36,12 @@
       font-family:var(--font);
       color:var(--ink);
       background:linear-gradient(180deg,#f7f9ff 0%, #eef3ff 100%);
+      overflow-y:auto;
+      overflow-x:hidden;
     }
     .page{
       width:min(1380px, calc(100vw - 16px));
-      margin:10px auto;
+      margin:10px auto 20px;
       display:grid;
       gap:10px;
     }
@@ -76,7 +78,7 @@
     }
     .pet-preview{
       margin-top:10px;
-      min-height:190px;
+      min-height:260px;
       border:1px dashed #d6d1fb;
       border-radius:14px;
       background:linear-gradient(180deg,#f7f4ff 0%, #eef4ff 100%);
@@ -84,13 +86,38 @@
       align-items:center;
       justify-content:center;
       overflow:hidden;
-      padding:12px;
+      padding:8px;
+      position:relative;
     }
     .pet-preview img{
       max-width:100%;
-      max-height:165px;
+      max-height:240px;
       object-fit:contain;
       filter:drop-shadow(0 10px 18px rgba(0,0,0,.12));
+    }
+    .pet-preview.hidden img{
+      display:none;
+    }
+    .hidden-reward-note{
+      display:none;
+      width:100%;
+      height:100%;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:18px;
+      color:var(--soft);
+      font-size:16px;
+      font-weight:700;
+      line-height:1.4;
+    }
+    .pet-preview.hidden .hidden-reward-note{
+      display:flex;
+    }
+    .stage-preview.hidden .hidden-reward-note{
+      display:flex;
+      font-size:14px;
+      padding:10px;
     }
     .pet-title{
       margin:10px 0 2px;
@@ -288,7 +315,7 @@
     .stage-card.unlocked .stage-chip{background:#e8f2ff;color:#356ac4;border-color:#9fc2ff}
     .stage-card.completed .stage-chip{background:#fff3c9;color:#8a6900;border-color:#ead27e}
     .stage-preview{
-      height:78px;
+      height:128px;
       border:1px dashed #d5d9ef;
       border-radius:12px;
       background:linear-gradient(180deg,#f6f3ff 0%, #eef4ff 100%);
@@ -296,13 +323,17 @@
       align-items:center;
       justify-content:center;
       overflow:hidden;
-      padding:8px;
+      padding:4px;
+      position:relative;
     }
     .stage-preview img{
       max-width:100%;
-      max-height:62px;
+      max-height:118px;
       object-fit:contain;
       filter:drop-shadow(0 8px 14px rgba(0,0,0,.10));
+    }
+    .stage-preview.hidden img{
+      display:none;
     }
     .stage-preview .emoji{
       font-size:34px;
@@ -453,7 +484,7 @@
     <section class="card hero">
       <div class="pet-card">
         <div class="mini-pill">⭐ Stage Journey</div>
-        <div class="pet-preview"><img id="heroPetImg" alt="Current pet stage"></div>
+        <div class="pet-preview" id="heroPetPreview"><img id="heroPetImg" alt="Current pet stage"><div class="hidden-reward-note" id="heroPetHidden">Clear a stage to reveal the pet picture.</div></div>
         <div class="pet-title" id="heroPetTitle">A Mystery Egg Awaits</div>
         <p class="pet-sub" id="heroPetSub">Complete each stage in order. Your pet will evolve step by step until it becomes King Hullabaloo!</p>
       </div>
@@ -467,7 +498,6 @@
         <div class="actions">
           <button class="btn primary" id="resumeBtn" type="button">▶ Resume Journey</button>
           <button class="btn blue" id="replayBtn" type="button">⭐ Replay Latest</button>
-          <button class="btn green" id="unlockAllBtn" type="button">🔓 Unlock All</button>
           <button class="btn pink" id="resetBtn" type="button">↺ Reset Device Progress</button>
         </div>
       </div>
@@ -530,9 +560,10 @@
 
       const LS_COMPLETE = 'monsterQuest_highestCompleted';
       const LS_JUST = 'monsterQuest_justUnlocked';
-      const LS_UNLOCK_ALL = 'monsterQuest_unlockAll';
 
+      const heroPetPreview = document.getElementById('heroPetPreview');
       const heroPetImg = document.getElementById('heroPetImg');
+      const heroPetHidden = document.getElementById('heroPetHidden');
       const heroPetTitle = document.getElementById('heroPetTitle');
       const heroPetSub = document.getElementById('heroPetSub');
       const progressMeta = document.getElementById('progressMeta');
@@ -544,7 +575,6 @@
       const practiceGrid = document.getElementById('practiceGrid');
       const resumeBtn = document.getElementById('resumeBtn');
       const replayBtn = document.getElementById('replayBtn');
-      const unlockAllBtn = document.getElementById('unlockAllBtn');
       const resetBtn = document.getElementById('resetBtn');
       const toast = document.getElementById('toast');
 
@@ -574,17 +604,7 @@
         localStorage.setItem(LS_COMPLETE, String(clampCompleted(stage)));
       }
 
-      function getUnlockAll(){
-        return localStorage.getItem(LS_UNLOCK_ALL) === '1';
-      }
-
-      function setUnlockAll(value){
-        if (value) localStorage.setItem(LS_UNLOCK_ALL, '1');
-        else localStorage.removeItem(LS_UNLOCK_ALL);
-      }
-
       function getUnlockedStage(){
-        if (getUnlockAll()) return STAGES.length;
         return Math.min(getCompleted() + 1, STAGES.length);
       }
 
@@ -619,9 +639,9 @@
       function petInfo(completed){
         if (completed <= 0) {
           return {
-            img: STAGES[0].img,
-            title:'A Mystery Egg Awaits',
-            sub:'Complete each stage in order. Your pet will evolve step by step until it becomes King Hullabaloo!'
+            img:'',
+            title:'A Mystery Reward Awaits',
+            sub:'Complete Stage 1 to reveal the first pet picture. Your pet will evolve step by step until it becomes King Hullabaloo!'
           };
         }
         if (completed >= 8) {
@@ -646,7 +666,7 @@
       }
 
       function imageMarkup(item, cls=''){
-        return `<img class="${cls}" src="${item.img}" alt="${item.name} picture" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'emoji',textContent:'${item.fallback}'}))">`;
+        return `<img class="${cls}" src="${item.img}" alt="${item.name} picture" onerror="this.style.display='none'">`;
       }
 
       function stageStatus(stage, completed){
@@ -658,7 +678,7 @@
       function stageStatusText(stage, completed){
         const status = stageStatus(stage, completed);
         if (status === 'completed') return 'Completed. You can replay this stage.';
-        if (status === 'unlocked') return 'Ready to play.';
+        if (status === 'unlocked') return 'Ready to play. Reward picture stays hidden until conquered.';
         return `Complete Stage ${stage - 1} first.`;
       }
 
@@ -680,21 +700,28 @@
         const justUnlocked = getJustUnlocked();
         const pet = petInfo(completed);
 
-        heroPetImg.src = pet.img;
+        if (completed > 0 && pet.img) {
+          heroPetPreview.classList.remove('hidden');
+          heroPetImg.src = pet.img;
+          heroPetImg.hidden = false;
+          heroPetHidden.hidden = false;
+        } else {
+          heroPetPreview.classList.add('hidden');
+          heroPetImg.removeAttribute('src');
+          heroPetImg.hidden = true;
+          heroPetHidden.hidden = false;
+        }
         heroPetTitle.textContent = pet.title;
         heroPetSub.textContent = pet.sub;
 
         progressCount.textContent = `${completed} of ${STAGES.length} stages completed`;
         progressMeta.textContent = `Next playable stage: Stage ${getLatestPlayableStage()}`;
         progressFill.style.width = `${(completed / STAGES.length) * 100}%`;
-        mapNote.textContent = getUnlockAll()
-          ? 'All stages are unlocked on this device.'
-          : completed === 0 ? 'Start from Stage 1.' : completed >= STAGES.length ? 'All stages are complete.' : `Stage ${completed + 1} is ready.`;
+        mapNote.textContent = completed === 0 ? 'Start from Stage 1.' : completed >= STAGES.length ? 'All stages are complete.' : `Stage ${completed + 1} is ready.`;
 
         resumeBtn.textContent = completed >= STAGES.length ? '▶ Replay Stage 8' : `▶ Resume Journey`;
         replayBtn.textContent = completed === 0 ? '⭐ Replay Latest' : `⭐ Replay Stage ${completed}`;
         replayBtn.disabled = completed === 0;
-        unlockAllBtn.textContent = getUnlockAll() ? '🔓 All Stages Unlocked' : '🔓 Unlock All';
 
         renderDots(completed);
 
@@ -710,12 +737,17 @@
           const buttonLabel = status === 'locked' ? 'Play' : 'Play';
           const disabled = status === 'locked' ? 'disabled' : '';
 
+          const previewClass = status === 'completed' ? 'stage-preview' : 'stage-preview hidden';
+          const previewMarkup = status === 'completed'
+            ? imageMarkup(item)
+            : '<div class="hidden-reward-note">Reward picture hidden until this stage is conquered.</div>';
+
           card.innerHTML = `
             <div class="stage-top">
               <div class="stage-name">${item.name}</div>
               <div class="stage-chip">${statusLabel}</div>
             </div>
-            <div class="stage-preview">${imageMarkup(item)}</div>
+            <div class="${previewClass}">${previewMarkup}</div>
             <div class="stage-text">${stageStatusText(item.stage, completed)}</div>
             <button class="stage-btn" type="button" ${disabled}>${buttonLabel}</button>
           `;
@@ -810,19 +842,10 @@
         if (completed >= 1) openStage(completed, false);
       });
 
-      unlockAllBtn.addEventListener('click', () => {
-        if (!window.confirm('Unlock all 8 stages on this device?')) return;
-        setUnlockAll(true);
-        clearJustUnlocked();
-        render();
-        showToast('All stages are now unlocked on this device.');
-      });
-
       resetBtn.addEventListener('click', () => {
         if (!window.confirm('Clear all saved stage progress on this device?')) return;
         localStorage.removeItem(LS_COMPLETE);
         localStorage.removeItem(LS_JUST);
-        localStorage.removeItem(LS_UNLOCK_ALL);
         render();
         showToast('Progress cleared on this device.');
       });
