@@ -346,6 +346,26 @@
       color:#35503a;
       font-weight:700;
     }
+    .topic-practice-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+      margin-top:4px;
+    }
+    .topic-btn{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      border-radius:14px;
+      padding:11px 10px;
+      font:700 15px var(--font);
+      box-shadow:0 4px 0 rgba(0,0,0,.08);
+      background:#eef5ff;
+      color:#2f6691;
+    }
+    .topic-btn:hover{
+      transform:translateY(-1px);
+    }
     .stage-dots{
       display:grid;
       grid-template-columns:repeat(8,1fr);
@@ -445,6 +465,7 @@
     }
     @media (max-width:640px){
       .stage-grid{grid-template-columns:1fr}
+      .topic-practice-grid{grid-template-columns:1fr}
       .hero,.map-card,.info-card{padding:14px}
       .title-wrap h1{font-size:30px}
       .stage-name{font-size:22px}
@@ -520,6 +541,11 @@
               </div>
             </div>
             <div class="mini-card">
+              <div class="mini-title">Try any topic</div>
+              <div class="mini-text">Use these practice buttons to open any topic directly. Topic practice does <strong>not</strong> unlock the stage journey.</div>
+              <div class="topic-practice-grid" id="topicPracticeGrid"></div>
+            </div>
+            <div class="mini-card">
               <div class="mini-title">Final reward</div>
               <div class="mini-text">Complete all 8 stages to fully evolve your pet into <strong>King Hullabaloo</strong>.</div>
             </div>
@@ -573,8 +599,10 @@
       const overlay = document.getElementById('stageOverlay');
       const frame = document.getElementById('stageFrame');
       const overlayClose = document.getElementById('overlayClose');
+      const topicPracticeGrid = document.getElementById('topicPracticeGrid');
 
       let toastTimer = null;
+      let currentOpenContext = { stage:0, mode:'journey' };
 
       function clampCompleted(value){
         const n = Number(value || 0);
@@ -627,6 +655,19 @@
         toastTimer = setTimeout(() => {
           toast.classList.remove('show');
         }, 2600);
+      }
+
+      function renderTopicPracticeButtons(){
+        if (!topicPracticeGrid) return;
+        topicPracticeGrid.innerHTML = '';
+        STAGES.forEach((item) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'topic-btn';
+          btn.textContent = item.name;
+          btn.addEventListener('click', () => openStage(item.stage, { practice:true }));
+          topicPracticeGrid.appendChild(btn);
+        });
       }
 
       function currentPetInfo(completed){
@@ -730,6 +771,7 @@
           stageGrid.appendChild(card);
         });
 
+        renderTopicPracticeButtons();
         renderDots(completed);
 
         if (justUnlocked >= 1 && justUnlocked <= STAGES.length) {
@@ -742,12 +784,14 @@
         }
       }
 
-      function openStage(stage){
+      function openStage(stage, options = {}){
+        const practice = !!options.practice;
         const completed = getCompleted();
         const unlocked = getUnlockedStage();
-        if (stage > unlocked && stage > completed) return;
+        if (!practice && stage > unlocked && stage > completed) return;
         const found = STAGES.find(s => s.stage === stage);
         if (!found) return;
+        currentOpenContext = { stage, mode: practice ? 'practice' : 'journey' };
         overlay.classList.add('open');
         overlay.setAttribute('aria-hidden', 'false');
         frame.src = found.url;
@@ -757,6 +801,7 @@
         overlay.classList.remove('open');
         overlay.setAttribute('aria-hidden', 'true');
         frame.src = 'about:blank';
+        currentOpenContext = { stage:0, mode:'journey' };
       }
 
       function markStageComplete(stage, announce = true){
@@ -819,8 +864,17 @@
         if (data.type !== 'monster-quest-stage-complete') return;
         const stage = clampCompleted(data.stage);
         if (stage < 1) return;
-        markStageComplete(stage, true);
+
+        const wasPractice = currentOpenContext.mode === 'practice';
         closeStage();
+
+        if (wasPractice) {
+          render();
+          showToast(`Stage ${stage} topic practice finished. Journey progress unchanged.`);
+          return;
+        }
+
+        markStageComplete(stage, true);
       });
 
       petImg.addEventListener('error', petImageFallback);
