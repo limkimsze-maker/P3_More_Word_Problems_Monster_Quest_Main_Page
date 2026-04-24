@@ -720,9 +720,10 @@
       }
 
       function imageMarkup(item, cls=''){
-        const fallbackSrc = item.stage === 7
-          ? 'https://raw.githubusercontent.com/limkimsze-maker/P3_More_Word_Problems_Monster_Quest_Pet_7/main/7%20pet.png'
-          : '';
+        const fallbackSrc =
+          item.stage === 7 ? 'https://raw.githubusercontent.com/limkimsze-maker/P3_More_Word_Problems_Monster_Quest_Pet_7/main/7%20pet.png' :
+          item.stage === 8 ? 'https://raw.githubusercontent.com/limkimsze-maker/P3_More_Word_Problems_Monster_Quest_Pet_8/33a7ae6e0b4cadb73c2be0f1326d005e2c8d99ef/8%20pet.png' :
+          '';
         return `<img class="${cls}" src="${item.img}" alt="${item.name} picture" data-fallback-src="${fallbackSrc}" onerror="if(this.dataset.fallbackSrc && this.src !== this.dataset.fallbackSrc){this.src=this.dataset.fallbackSrc;this.dataset.fallbackSrc='';}else{this.replaceWith(document.createTextNode(item.fallback || '⭐'));}">`;
       }
 
