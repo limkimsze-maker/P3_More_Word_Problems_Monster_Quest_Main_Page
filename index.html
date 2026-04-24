@@ -773,6 +773,22 @@
         }
       }
 
+      function addStageUrlParams(url, params){
+        const sep = url.includes('?') ? '&' : '?';
+        const qs = Object.entries(params)
+          .filter(([, value]) => value !== undefined && value !== null && value !== '')
+          .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+          .join('&');
+        return qs ? `${url}${sep}${qs}` : url;
+      }
+
+      function destroyStageFrame(){
+        // Force the iframe to unload fully. This prevents the second Try Any Topic return from being trapped
+        // in an old iframe/history state.
+        try { frame.removeAttribute('src'); } catch(e) {}
+        try { frame.src = 'about:blank'; } catch(e) {}
+      }
+
       function openStage(stage, freePractice){
         const completed = getCompleted();
         const unlocked = getUnlockedStage();
@@ -785,13 +801,20 @@
         completionBanner.classList.remove('show');
         overlay.classList.add('open');
         overlay.setAttribute('aria-hidden', 'false');
-        frame.src = freePractice ? `${found.url}${found.url.includes('?') ? '&' : '?'}freepractice=1` : found.url;
+
+        destroyStageFrame();
+        const freshUrl = addStageUrlParams(found.url, {
+          freepractice: freePractice ? 1 : '',
+          mq_stage: stage,
+          mq_open: Date.now()
+        });
+        setTimeout(() => { frame.src = freshUrl; }, 30);
       }
 
       function closeStage(){
         overlay.classList.remove('open');
         overlay.setAttribute('aria-hidden', 'true');
-        frame.src = 'about:blank';
+        destroyStageFrame();
         currentOpenStage = 0;
         pendingCompletionStage = 0;
         completionBanner.classList.remove('show');
@@ -824,13 +847,19 @@
       function handleCompletedQuery(){
         const params = new URLSearchParams(window.location.search);
         const completedParam = params.get('completed');
-        if (!completedParam) return;
-        const stage = clampCompleted(completedParam);
-        if (stage >= 1) {
-          markStageComplete(stage);
-          showToast(pendingToast);
+        const manualReturn = params.get('mq_return') || params.get('return');
+
+        if (completedParam) {
+          const stage = clampCompleted(completedParam);
+          if (stage >= 1) {
+            markStageComplete(stage);
+            showToast(pendingToast);
+          }
+        } else if (manualReturn) {
+          showToast('Returned to Stage Map.');
         }
-        params.delete('completed');
+
+        ['completed','mq_return','return','reason','ts','from'].forEach(key => params.delete(key));
         const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}${window.location.hash || ''}`;
         history.replaceState({}, '', clean);
       }
@@ -859,6 +888,15 @@
 
       window.addEventListener('message', (event) => {
         const data = event.data || {};
+
+        if (data.type === 'monster-quest-return-main') {
+          // Manual Back to Main Page from a stage. Do not change progress.
+          closeStage();
+          render();
+          showToast('Returned to Stage Map.');
+          return;
+        }
+
         if (data.type !== 'monster-quest-stage-complete') return;
         const stage = clampCompleted(data.stage);
         if (stage < 1) return;
