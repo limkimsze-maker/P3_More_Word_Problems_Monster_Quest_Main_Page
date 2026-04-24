@@ -470,9 +470,55 @@
     }
     .toast.show{transform:translateX(-50%) translateY(0)}
 
+
+
+    /* Side-by-side layout: Stage Map on the left, Try Any Topic on the right */
+    .map-practice-row{
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) 260px;
+      gap:10px;
+      align-items:start;
+    }
+    .map-practice-row .map-card,
+    .map-practice-row .practice-card{
+      min-height:100%;
+    }
+    .map-practice-row .practice-card{
+      position:sticky;
+      top:10px;
+      align-self:start;
+      padding:12px;
+    }
+    .map-practice-row .practice-card .section-head{
+      display:grid;
+      gap:6px;
+      margin-bottom:10px;
+    }
+    .map-practice-row .practice-card .section-title{
+      justify-self:start;
+      font-size:16px;
+      padding:7px 12px;
+    }
+    .map-practice-row .practice-card .section-note{
+      font-size:12px;
+      line-height:1.25;
+    }
+    .map-practice-row .practice-grid{
+      grid-template-columns:1fr;
+      gap:7px;
+    }
+    .map-practice-row .practice-btn{
+      width:100%;
+      text-align:left;
+      padding:10px 12px;
+      font-size:13px;
+    }
+
     @media (max-width:1120px){
       .hero{grid-template-columns:1fr}
       .stage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .map-practice-row{grid-template-columns:1fr}
+      .map-practice-row .practice-card{position:static}
       .practice-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
     }
     @media (max-width:640px){
@@ -519,6 +565,7 @@
       <div class="progress-dots" id="progressDots"></div>
     </section>
 
+    <div class="map-practice-row">
     <section class="card map-card">
       <div class="section-head">
         <div class="section-title">🗺️ Stage Map</div>
@@ -534,6 +581,7 @@
       </div>
       <div class="practice-grid" id="practiceGrid"></div>
     </section>
+    </div>
 
     <div class="card footer">Progress is saved in this device’s browser. A pupil can stop after a stage and continue later on the same device. Later stages stay locked until the earlier stage is completed in order. <br><strong>Designed by Lim Kim Sze © 2026</strong></div>
   </div>
