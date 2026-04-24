@@ -608,7 +608,7 @@
         { stage:4, name:'Stage 4', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_4/', img:'https://raw.githubusercontent.com/limkimsze-maker/P3_More_Word_Problems_Monster_Quest_Pet_4/07c8969064c31eb25ed42738bb16103537ead466/4%20pet.png', fallback:'🕊️' },
         { stage:5, name:'Stage 5', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_5/', img:'https://raw.githubusercontent.com/limkimsze-maker/P3_More_Word_Problems_Monster_Quest_Pet_5/4376abd2f8a1f1f854206c26b851f51a7a5d7fd5/5%20pet.png', fallback:'✨' },
         { stage:6, name:'Stage 6', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_6/', img:'https://raw.githubusercontent.com/limkimsze-maker/P3_More_Word_Problems_Monster_Quest_Pet_6/af6e0dad323a865f2cc879403223c9bbc82aac2f/6%20pet.png', fallback:'🪄' },
-        { stage:7, name:'Stage 7', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_7/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_7/7%20pet.png', fallback:'👑' },
+        { stage:7, name:'Stage 7', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_7/', img:'https://raw.githubusercontent.com/limkimsze-maker/P3_More_Word_Problems_Monster_Quest_Pet_7/main/7%20pet.png', fallback:'👑' },
         { stage:8, name:'Stage 8', url:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_8/', img:'https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Pet_8/8%20pet.png', fallback:'🏆' }
       ];
 
@@ -720,7 +720,7 @@
       }
 
       function imageMarkup(item, cls=''){
-        return `<img class="${cls}" src="${item.img}" alt="${item.name} picture" onerror="this.style.display='none'">`;
+        return `<img class="${cls}" src="${item.img}" alt="${item.name} picture" onerror="this.replaceWith(document.createTextNode(item.fallback || '⭐'))">`;
       }
 
       function stageStatus(stage, completed){
