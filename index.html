@@ -39,6 +39,11 @@
       overflow-y:auto;
       overflow-x:hidden;
     }
+    html.stage-open,
+    html.stage-open body{
+      overflow:hidden !important;
+      height:100%;
+    }
     .page{
       width:min(1380px, calc(100vw - 16px));
       margin:10px auto 20px;
@@ -403,6 +408,7 @@
       border:none;
       display:block;
       background:#fff;
+      overflow:hidden;
     }
     .overlay-close{
       position:fixed;
@@ -774,17 +780,20 @@
       }
 
       function addStageUrlParams(url, params){
+        const cleanParams = Object.entries(params || {}).filter(([, value]) => value !== '' && value !== null && value !== undefined);
         const sep = url.includes('?') ? '&' : '?';
-        const qs = Object.entries(params)
-          .filter(([, value]) => value !== undefined && value !== null && value !== '')
+        const qs = cleanParams
           .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
           .join('&');
         return qs ? `${url}${sep}${qs}` : url;
       }
 
+      function lockPageScroll(lock){
+        document.documentElement.classList.toggle('stage-open', !!lock);
+        document.body.classList.toggle('stage-open', !!lock);
+      }
+
       function destroyStageFrame(){
-        // Force the iframe to unload fully. This prevents the second Try Any Topic return from being trapped
-        // in an old iframe/history state.
         try { frame.removeAttribute('src'); } catch(e) {}
         try { frame.src = 'about:blank'; } catch(e) {}
       }
@@ -799,8 +808,11 @@
         pendingCompletionStage = 0;
         pendingToast = '';
         completionBanner.classList.remove('show');
+
+        lockPageScroll(true);
         overlay.classList.add('open');
         overlay.setAttribute('aria-hidden', 'false');
+        frame.setAttribute('scrolling', 'no');
 
         destroyStageFrame();
         const freshUrl = addStageUrlParams(found.url, {
@@ -812,12 +824,13 @@
       }
 
       function closeStage(){
+        completionBanner.classList.remove('show');
+        destroyStageFrame();
         overlay.classList.remove('open');
         overlay.setAttribute('aria-hidden', 'true');
-        destroyStageFrame();
+        lockPageScroll(false);
         currentOpenStage = 0;
         pendingCompletionStage = 0;
-        completionBanner.classList.remove('show');
       }
 
       function markStageComplete(stage){
@@ -856,6 +869,7 @@
             showToast(pendingToast);
           }
         } else if (manualReturn) {
+          closeStage();
           showToast('Returned to Stage Map.');
         }
 
