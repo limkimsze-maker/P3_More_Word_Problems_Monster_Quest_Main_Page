@@ -129,7 +129,36 @@
     min-height:100%!important;
     overflow-x:hidden!important;
     overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:auto!important;
+    touch-action:pan-y!important;
   }
+
+  /* The game adds stage-open to freeze the map behind a stage.
+     On phones this can remain stale after free practice and trap scrolling. */
+  html.stage-open,
+  html.stage-open body,
+  body.stage-open{
+    height:auto!important;
+    min-height:100%!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:auto!important;
+    touch-action:pan-y!important;
+  }
+
+  .stage-frame{
+    overflow:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+
+  .map-practice-row,
+  .practice-card,
+  .practice-grid{
+    touch-action:pan-y!important;
+  }
+
   .mq-mobile-stack-fix{
     display:flex!important;
     flex-direction:column!important;
@@ -210,7 +239,27 @@
 
   function applyQuestLayout(){
     if(!window.matchMedia('(max-width:800px)').matches) return;
+
     document.body.classList.remove('cover-active');
+
+    const overlay=document.getElementById('stageOverlay');
+    const frame=document.getElementById('stageFrame');
+
+    /* Allow each stage iframe to receive normal vertical swipe scrolling. */
+    if(frame && frame.getAttribute('scrolling')!=='yes'){
+      frame.setAttribute('scrolling','yes');
+    }
+
+    /* If the stage overlay is no longer visible, never leave the map locked. */
+    if(!overlay || !overlay.classList.contains('open')){
+      document.documentElement.classList.remove('stage-open');
+      document.body.classList.remove('stage-open');
+      document.documentElement.style.removeProperty('overflow');
+      document.documentElement.style.removeProperty('overflow-y');
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('overflow-y');
+    }
+
     findWorkingCards();
   }
 
@@ -228,6 +277,9 @@
   window.addEventListener('load',schedule);
   window.addEventListener('resize',schedule);
   window.addEventListener('orientationchange',schedule);
+  window.addEventListener('pageshow',schedule);
+  window.addEventListener('focus',schedule);
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) schedule(); });
 
   const mo=new MutationObserver(schedule);
   mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style']});
