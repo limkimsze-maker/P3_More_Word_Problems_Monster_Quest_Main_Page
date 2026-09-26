@@ -657,15 +657,17 @@
         transform:scale(.95);
       }
       #mqStartQuestBtn{
-        top:42.2%;
-        width:50vw;
-        max-width:360px;
-        height:7.2vh;
-        min-height:58px;
-        max-height:92px;
+        /* Cover artwork is 3:2 and centred with scale(.95).
+           This locks the tap target to the printed START QUEST button. */
+        top:calc(50% + 13.9vw);
+        width:34vw;
+        max-width:none;
+        height:8vw;
+        min-height:44px;
+        max-height:none;
       }
       .mq-loading-text{
-        top:49.5%;
+        top:calc(50% + 20.3vw);
       }
     }
 </style>
