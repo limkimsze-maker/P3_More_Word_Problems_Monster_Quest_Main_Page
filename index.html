@@ -61,6 +61,7 @@
   }
   #status.show{display:block}
 </style>
+<script src="https://limkimsze-maker.github.io/Primary-Math-Teaching-Engine/public/sls-packager.js?v=20260927-1"></script>
 </head>
 <body>
 <div id="cover" aria-label="Monster Quest start screen">
@@ -118,7 +119,7 @@
   async function downloadQuestFile(){
     const old=downloadBtn.textContent;
     try{
-      downloadBtn.disabled=true;downloadBtn.textContent='Preparing…';
+      downloadBtn.disabled=true;downloadBtn.textContent='Preparing SLS ZIP…';
       let html=gameHtml;
       if(!html){
         const res=await fetch('./game.html?v=20260926-coverfix',{cache:'no-store'});
@@ -126,17 +127,11 @@
         html=await res.text();
       }
       const base='https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Main_Page/';
-      if(!/<base\b/i.test(html)){
-        if(/<head[^>]*>/i.test(html))html=html.replace(/<head([^>]*)>/i,'<head$1><base href="'+base+'">');
-        else html='<base href="'+base+'">'+html;
-      }
-      const url=URL.createObjectURL(new Blob([html],{type:'text/html'}));
-      const a=document.createElement('a');a.href=url;a.download='p3-more-word-problems-monster-quest.html';
-      document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
-      downloadBtn.textContent='Downloaded ✓';
-      setTimeout(()=>downloadBtn.textContent=old,1400);
+      await window.SLSPackager.downloadZip(html,'p3-more-word-problems-monster-quest.zip',{baseHref:base});
+      downloadBtn.textContent='SLS ZIP downloaded ✓';
+      setTimeout(()=>downloadBtn.textContent=old,1500);
     }catch(err){
-      downloadBtn.textContent='Download failed';
+      console.error(err);downloadBtn.textContent='Download failed';
       setTimeout(()=>downloadBtn.textContent=old,1800);
     }finally{downloadBtn.disabled=false;}
   }
