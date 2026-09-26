@@ -39,6 +39,23 @@
     font-size:13px;display:none;z-index:5;
   }
   #status.show{display:block}
+
+    /* Mobile cover fix: some portrait webviews report a desktop-like width,
+       so force the Start Quest hitbox onto the printed START QUEST button. */
+    @media (orientation:portrait){
+      #mqStartQuestBtn{
+        top:57.6% !important;
+        width:34vw !important;
+        min-width:150px;
+        max-width:250px;
+        height:6vh !important;
+        min-height:52px;
+        max-height:78px;
+      }
+      .mq-loading-text{
+        top:66% !important;
+      }
+    }
 </style>
 </head>
 <body>
