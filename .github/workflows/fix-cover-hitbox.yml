@@ -1,0 +1,75 @@
+name: Fix cover hitbox
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-cover-hitbox.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: ${{ !contains(github.event.head_commit.message, 'Align Start Quest hitbox with cover artwork') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Align mobile Start Quest hitbox
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("index.html")
+          s = p.read_text(encoding="utf-8")
+          old = """    @media (max-width:800px){
+      .mq-cover-img{
+        transform:scale(.95);
+      }
+      #mqStartQuestBtn{
+        top:42.2%;
+        width:50vw;
+        max-width:360px;
+        height:7.2vh;
+        min-height:58px;
+        max-height:92px;
+      }
+      .mq-loading-text{
+        top:49.5%;
+      }
+    }"""
+          new = """    @media (max-width:800px){
+      .mq-cover-img{
+        transform:scale(.95);
+      }
+      #mqStartQuestBtn{
+        /* Cover artwork is 3:2 and centred with scale(.95).
+           This locks the tap target to the printed START QUEST button. */
+        top:calc(50% + 13.9vw);
+        width:34vw;
+        max-width:none;
+        height:8vw;
+        min-height:44px;
+        max-height:none;
+      }
+      .mq-loading-text{
+        top:calc(50% + 20.3vw);
+      }
+    }"""
+          if old not in s:
+              raise SystemExit("Expected mobile cover block not found; no changes made.")
+          p.write_text(s.replace(old, new, 1), encoding="utf-8")
+          PY
+
+      - name: Commit fix and remove temporary workflow
+        shell: bash
+        run: |
+          rm -f .github/workflows/fix-cover-hitbox.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/fix-cover-hitbox.yml
+          git commit -m "Align Start Quest hitbox with cover artwork"
+          git push
