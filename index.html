@@ -165,6 +165,19 @@
     touch-action:pan-y!important;
   }
 
+  /* Free practice: Try Any Topic must always expose all 8 stages.
+     Journey progression remains controlled separately by the stage map. */
+  .practice-card .practice-btn,
+  .practice-card button,
+  .practice-card a{
+    pointer-events:auto!important;
+  }
+  .practice-card .practice-btn{
+    opacity:1!important;
+    filter:none!important;
+    cursor:pointer!important;
+  }
+
   .mq-mobile-stack-fix{
     display:flex!important;
     flex-direction:column!important;
@@ -202,6 +215,41 @@
 <script id="mqQuestMobileLayoutScript">
 (function(){
   function txt(el){ return (el && el.textContent || '').replace(/\\s+/g,' ').trim(); }
+
+  function unlockTryAnyTopic(){
+    const cards=[...document.querySelectorAll('.practice-card')];
+    cards.forEach(card=>{
+      const cardText=txt(card);
+      if(cardText && !/Try Any Topic/i.test(cardText) && !card.classList.contains('practice-card')) return;
+
+      const buttons=[...card.querySelectorAll('.practice-btn,button,a')];
+      buttons.forEach(btn=>{
+        const label=txt(btn);
+        const isStage=/^Stage\s*[1-8]\b/i.test(label) || btn.classList.contains('practice-btn');
+        if(!isStage) return;
+
+        try{ btn.disabled=false; }catch(e){}
+        btn.removeAttribute('disabled');
+        btn.removeAttribute('aria-disabled');
+        btn.removeAttribute('inert');
+        btn.classList.remove('locked','disabled','is-locked','is-disabled');
+        btn.style.setProperty('pointer-events','auto','important');
+        btn.style.setProperty('opacity','1','important');
+        btn.style.setProperty('filter','none','important');
+        btn.style.setProperty('cursor','pointer','important');
+
+        let p=btn.parentElement;
+        for(let i=0;i<3 && p && p!==card;i++,p=p.parentElement){
+          p.classList.remove('locked','disabled','is-locked','is-disabled');
+          p.removeAttribute('aria-disabled');
+          p.removeAttribute('inert');
+          p.style.removeProperty('pointer-events');
+          p.style.removeProperty('opacity');
+          p.style.removeProperty('filter');
+        }
+      });
+    });
+  }
 
   function findWorkingCards(){
     const all=[...document.querySelectorAll('body *')];
@@ -302,6 +350,8 @@
   }
 
   function applyQuestLayout(){
+    unlockTryAnyTopic();
+
     if(!window.matchMedia('(max-width:800px)').matches) return;
 
     document.body.classList.remove('cover-active');
@@ -344,9 +394,11 @@
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden) schedule(); });
 
   const mo=new MutationObserver(schedule);
-  mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style']});
+  mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style','disabled','aria-disabled','inert']});
+  setTimeout(schedule,100);
   setTimeout(schedule,300);
   setTimeout(schedule,1000);
+  setTimeout(schedule,2000);
 })();
 <'+'/script>`;
 
