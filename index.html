@@ -251,6 +251,19 @@
     });
   }
 
+  // Mark Try Any Topic launches independently of Journey progression.
+  // The matching stage consumes this one-shot session flag on load.
+  document.addEventListener('click', function(e){
+    const btn=e.target && e.target.closest ? e.target.closest('.practice-card .practice-btn, .practice-card button, .practice-card a') : null;
+    if(!btn) return;
+    const label=txt(btn);
+    const m=label.match(/Stage\s*([1-8])/i);
+    if(!m) return;
+    try{
+      sessionStorage.setItem('monsterQuest_freePracticeStage', m[1]);
+    }catch(err){}
+  }, true);
+
   function findWorkingCards(){
     const all=[...document.querySelectorAll('body *')];
     const headings=all.filter(el=>{
