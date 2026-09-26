@@ -41,6 +41,13 @@
   }
   #startQuest:focus-visible{outline:4px solid rgba(255,244,120,.95);outline-offset:3px}
   #startQuest:disabled{cursor:wait}
+  #downloadQuest{
+    position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:6;
+    min-height:38px;padding:8px 12px;border:1px solid rgba(255,255,255,.45);border-radius:12px;
+    background:rgba(4,16,44,.78);color:#fff;font:800 13px/1.1 system-ui,sans-serif;cursor:pointer;
+    box-shadow:0 5px 18px rgba(0,0,0,.24);backdrop-filter:blur(6px);
+  }
+  #downloadQuest:disabled{opacity:.55;cursor:wait}
   #loading{
     position:absolute;left:50%;top:86%;transform:translateX(-50%);display:none;
     color:#fff;font-size:clamp(16px,4vw,26px);font-weight:900;text-shadow:0 3px 10px #000;
@@ -63,6 +70,7 @@
     <div id="loading">Loading Quest...</div>
   </div>
 </div>
+<button id="downloadQuest" type="button" disabled>⬇ Download Quest</button>
 <div id="status">Loading cover…</div>
 <script>
 (()=>{
@@ -71,6 +79,7 @@
   const img=document.getElementById('coverImg');
   const btn=document.getElementById('startQuest');
   const status=document.getElementById('status');
+  const downloadBtn=document.getElementById('downloadQuest');
   let gameHtml='';
   let startSoundSrc='';
 
@@ -97,6 +106,7 @@
         try{ await img.decode(); }catch(_){}
       }
       btn.disabled=false;
+      downloadBtn.disabled=false;
       status.classList.remove('show');
     }catch(err){
       showStatus('Tap to retry loading');
@@ -104,6 +114,33 @@
       status.onclick=prepare;
     }
   }
+
+  async function downloadQuestFile(){
+    const old=downloadBtn.textContent;
+    try{
+      downloadBtn.disabled=true;downloadBtn.textContent='Preparing…';
+      let html=gameHtml;
+      if(!html){
+        const res=await fetch('./game.html?v=20260926-coverfix',{cache:'no-store'});
+        if(!res.ok)throw new Error('HTTP '+res.status);
+        html=await res.text();
+      }
+      const base='https://limkimsze-maker.github.io/P3_More_Word_Problems_Monster_Quest_Main_Page/';
+      if(!/<base\b/i.test(html)){
+        if(/<head[^>]*>/i.test(html))html=html.replace(/<head([^>]*)>/i,'<head$1><base href="'+base+'">');
+        else html='<base href="'+base+'">'+html;
+      }
+      const url=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+      const a=document.createElement('a');a.href=url;a.download='p3-more-word-problems-monster-quest.html';
+      document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+      downloadBtn.textContent='Downloaded ✓';
+      setTimeout(()=>downloadBtn.textContent=old,1400);
+    }catch(err){
+      downloadBtn.textContent='Download failed';
+      setTimeout(()=>downloadBtn.textContent=old,1800);
+    }finally{downloadBtn.disabled=false;}
+  }
+  downloadBtn.addEventListener('click',downloadQuestFile);
 
   function launch(){
     if(!gameHtml || btn.disabled) return;
