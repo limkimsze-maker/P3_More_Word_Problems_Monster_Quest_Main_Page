@@ -17,21 +17,33 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
           p = Path("index.html")
           s = p.read_text(encoding="utf-8")
-          pattern = r'(#mqStartQuestBtn\s*\{\s*)top:57\.6%;\s*width:34vw;\s*height:5\.8vh;'
-          replacement = r'''\1top:42.2%;
+          old = """      #mqStartQuestBtn{
+                top:calc(50% + min(14.44vw, 21.66vh));
+                width:min(31vw, 46.5vh);
+                height:max(44px, min(6.2vw, 9.3vh));
+              }"""
+          new = """      #mqStartQuestBtn{
+                top:42.2%;
                 width:50vw;
                 max-width:360px;
                 height:7.2vh;
                 min-height:58px;
-                max-height:92px;'''
-          s2, n = re.subn(pattern, replacement, s, count=1)
-          if n != 1:
-              raise SystemExit(f"Expected one mobile Start Quest hitbox block; found {n}")
-          s2 = re.sub(r'(\.mq-loading-text\s*\{\s*)top:66%;', r'\1top:49.5%;', s2, count=1)
-          p.write_text(s2, encoding="utf-8")
+                max-height:92px;
+              }"""
+          if old not in s:
+              raise SystemExit("Current mobile Start Quest block not found")
+          s = s.replace(old, new, 1)
+          old_load = """      .mq-loading-text{
+                top:calc(50% + min(22vw, 33vh));
+              }"""
+          new_load = """      .mq-loading-text{
+                top:49.5%;
+              }"""
+          if old_load in s:
+              s = s.replace(old_load, new_load, 1)
+          p.write_text(s, encoding="utf-8")
           PY
       - name: Commit fix
         run: |
