@@ -120,9 +120,125 @@
     }
 
     const skipCoverCss='<style id="mqWrapperSkipCover">#mqCoverScreen{display:none!important;pointer-events:none!important}body.cover-active{overflow-y:auto!important;overflow-x:hidden!important}</style>';
+
+    const questMobileLayoutCss=`
+<style id="mqQuestMobileLayoutFix">
+@media (max-width:800px){
+  html,body{
+    height:auto!important;
+    min-height:100%!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+  }
+  .mq-mobile-stack-fix{
+    display:flex!important;
+    flex-direction:column!important;
+    grid-template-columns:1fr!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    align-items:stretch!important;
+  }
+  .mq-mobile-stack-fix > *{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    height:auto!important;
+    position:relative!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+  }
+  .mq-mobile-working-card-fix{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+}
+</style>`;
+
+    const questMobileLayoutScript=`
+<script id="mqQuestMobileLayoutScript">
+(function(){
+  function txt(el){ return (el && el.textContent || '').replace(/\\s+/g,' ').trim(); }
+
+  function findWorkingCards(){
+    const all=[...document.querySelectorAll('body *')];
+    const headings=all.filter(el=>{
+      const t=txt(el);
+      return t==='Working Space' && el.children.length<=3;
+    });
+
+    headings.forEach(h=>{
+      let card=h;
+      for(let i=0;i<7 && card.parentElement;i++){
+        if(txt(card).includes('Clear Working')) break;
+        card=card.parentElement;
+      }
+      if(!card || card===document.body) return;
+      card.classList.add('mq-mobile-working-card-fix');
+
+      let node=card;
+      for(let depth=0;depth<8 && node.parentElement && node.parentElement!==document.body;depth++){
+        const parent=node.parentElement;
+        const branch=[...parent.children].find(ch=>ch===node || ch.contains(card));
+        if(!branch){ node=parent; continue; }
+
+        const br=branch.getBoundingClientRect();
+        const horizontalSibling=[...parent.children].some(ch=>{
+          if(ch===branch || ch.contains(card)) return false;
+          const r=ch.getBoundingClientRect();
+          if(r.width<40 || r.height<40 || br.width<40 || br.height<40) return false;
+          const verticalOverlap=Math.min(r.bottom,br.bottom)-Math.max(r.top,br.top);
+          return verticalOverlap>40 && (r.right<=br.left+24 || r.left>=br.right-24);
+        });
+
+        if(horizontalSibling){
+          parent.classList.add('mq-mobile-stack-fix');
+          break;
+        }
+        node=parent;
+      }
+    });
+  }
+
+  function applyQuestLayout(){
+    if(!window.matchMedia('(max-width:800px)').matches) return;
+    document.body.classList.remove('cover-active');
+    findWorkingCards();
+  }
+
+  let raf=0;
+  function schedule(){
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(applyQuestLayout);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',schedule,{once:true});
+  }else{
+    schedule();
+  }
+  window.addEventListener('load',schedule);
+  window.addEventListener('resize',schedule);
+  window.addEventListener('orientationchange',schedule);
+
+  const mo=new MutationObserver(schedule);
+  mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style']});
+  setTimeout(schedule,300);
+  setTimeout(schedule,1000);
+})();
+<'+'/script>`;
+
     const readyScript='<script>document.body.classList.remove("cover-active");<'+'/script>';
-    let html=gameHtml.replace('</head>',skipCoverCss+'</head>');
-    html=html.replace('</body>',readyScript+'</body>');
+    let html=gameHtml.replace('</head>',skipCoverCss+questMobileLayoutCss+'</head>');
+    html=html.replace('</body>',readyScript+questMobileLayoutScript+'</body>');
 
     setTimeout(()=>{
       document.open();
