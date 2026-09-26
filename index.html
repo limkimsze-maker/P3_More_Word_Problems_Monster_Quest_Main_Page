@@ -151,6 +151,12 @@
   .stage-frame{
     overflow:auto!important;
     -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:contain!important;
+    touch-action:pan-y!important;
+  }
+
+  .stage-overlay{
+    touch-action:pan-y!important;
   }
 
   .map-practice-row,
@@ -290,6 +296,14 @@
 
     const readyScript='<script>document.body.classList.remove("cover-active");<'+'/script>';
     let html=gameHtml.replace('</head>',skipCoverCss+questMobileLayoutCss+'</head>');
+
+    /* Never disable scrolling inside the full-screen stage iframe.
+       This is especially important for Try Any Topic on Android. */
+    html=html.replace(
+      "frame.setAttribute('scrolling', 'no');",
+      "frame.setAttribute('scrolling','yes');frame.style.overflow='auto';frame.style.webkitOverflowScrolling='touch';frame.style.touchAction='pan-y';"
+    );
+
     html=html.replace('</body>',readyScript+questMobileLayoutScript+'</body>');
 
     setTimeout(()=>{
